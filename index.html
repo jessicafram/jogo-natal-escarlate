@@ -106,22 +106,15 @@
                 <!-- O áudio será gerado por JavaScript -->
             </audio>
 
-            <!-- Link externo com fallback para copiar -->
+            <!-- Simulação da análise do Espectrograma -->
             <div class="mt-4">
-                <a href="https://spectrogram.sci.gs/" target="_blank"
-                    class="inline-block text-blue-400 hover:text-blue-300">
-                    Abrir Ferramenta de Espectrograma (link externo)
-                </a>
-                <p class="text-sm text-gray-400 mt-2">Se o link não abrir, copie o endereço abaixo e cole numa nova aba
-                    do seu navegador:</p>
-                <div class="flex mt-2">
-                    <input type="text" id="link-ferramenta"
-                        class="bg-gray-800 border border-gray-600 text-gray-300 text-sm rounded-l-md p-2 w-full"
-                        value="https://spectrogram.sci.gs/" readonly>
-                    <button onclick="copiarLink()"
-                        class="bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded-r-md">Copiar</button>
+                <button onclick="analisarAudio()" class="btn-principal text-white font-bold py-2 px-4 rounded w-full">
+                    Analisar Espectrograma
+                </button>
+                <div id="mensagem-audio-escondida"
+                    class="mt-4 p-4 bg-gray-900 rounded-md text-center text-2xl font-bold text-green-400 hidden">
+                    <p class="animate-pulse">Analisando frequência...</p>
                 </div>
-                <p id="feedback-copia" class="text-green-400 text-sm mt-1 h-4"></p>
             </div>
         </div>
     </div>
@@ -172,22 +165,19 @@
             }, 3000);
         }
 
-        // --- LÓGICA PARA COPIAR O LINK ---
-        function copiarLink() {
-            const inputElement = document.getElementById('link-ferramenta');
-            const feedbackElement = document.getElementById('feedback-copia');
+        // --- LÓGICA DO PUZZLE DO ÁUDIO ---
+        function analisarAudio() {
+            const mensagemAudio = document.getElementById('mensagem-audio-escondida');
 
-            inputElement.select();
-            inputElement.setSelectionRange(0, 99999); // Para dispositivos móveis
+            // Mostra a mensagem "Analisando..."
+            mensagemAudio.classList.remove('hidden');
+            mensagemAudio.innerHTML = '<p class="animate-pulse">Analisando frequência...</p>';
 
-            try {
-                document.execCommand('copy');
-                feedbackElement.textContent = 'Link copiado!';
-                setTimeout(() => { feedbackElement.textContent = ''; }, 2000);
-            } catch (err) {
-                feedbackElement.textContent = 'Erro ao copiar.';
-                console.error('Falha ao copiar o link: ', err);
-            }
+            // Simula um tempo de processamento
+            setTimeout(() => {
+                // Revela a palavra decodificada
+                mensagemAudio.innerHTML = '<p>Padrão sonoro decodificado: <strong class="text-yellow-400">SOFIA</strong></p>';
+            }, 2500); // 2.5 segundos de "análise"
         }
     </script>
 </body>
