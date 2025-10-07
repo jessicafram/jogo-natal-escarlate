@@ -13,7 +13,6 @@
         rel="stylesheet">
     <style>
         body {
-            /* Usando a imagem da mansão como fundo do jogo */
             background-image: url('mansao.png');
             background-size: cover;
             background-position: center;
@@ -24,7 +23,6 @@
 
         .container {
             background-color: rgba(26, 32, 44, 0.95);
-            /* Fundo quase opaco para facilitar a leitura */
             border: 1px solid #718096;
             box-shadow: 0 0 25px rgba(0, 0, 0, 0.7);
             backdrop-filter: blur(8px);
@@ -48,12 +46,12 @@
             border: 2px solid #4a5568;
         }
 
-        .btn-analisar {
+        .btn-principal {
             background-color: #c53030;
             transition: background-color 0.3s;
         }
 
-        .btn-analisar:hover {
+        .btn-principal:hover {
             background-color: #9b2c2c;
         }
     </style>
@@ -61,7 +59,17 @@
 
 <body class="p-4 md:p-8 flex items-center justify-center min-h-screen">
 
-    <div class="max-w-2xl mx-auto p-6 rounded-lg container">
+    <!-- Tela Inicial -->
+    <div id="tela-inicial" class="max-w-2xl mx-auto p-6 rounded-lg container text-center">
+        <h1 class="text-5xl font-bold mb-4 puzzle-title pb-4">O Natal Escarlate</h1>
+        <p class="text-xl mb-6">Uma nevasca... Uma mansão isolada... Um assassinato. A investigação começa agora.</p>
+        <button id="btn-iniciar" class="btn-principal text-white font-bold py-3 px-6 rounded text-lg">
+            Iniciar Investigação
+        </button>
+    </div>
+
+    <!-- Conteúdo Principal do Jogo (escondido no início) -->
+    <div id="conteudo-jogo" class="max-w-2xl mx-auto p-6 rounded-lg container hidden">
 
         <h1 class="text-5xl font-bold mb-6 text-center puzzle-title pb-4">O Natal Escarlate</h1>
 
@@ -71,7 +79,6 @@
             <p class="mb-4 text-lg">O mordomo disse que estava na sala de jantar às 22h. Analise a foto da festa tirada
                 na noite anterior para encontrar a verdade.</p>
 
-            <!-- Usando a imagem da festa para o puzzle -->
             <div class="relative">
                 <img id="foto-pista" src="festa.png" alt="Foto da festa de Natal numa sala escura com lareira"
                     class="rounded-md w-full">
@@ -82,14 +89,13 @@
                 </div>
             </div>
 
-            <button onclick="analisarFoto()" class="mt-4 btn-analisar text-white font-bold py-2 px-4 rounded w-full">
+            <button onclick="analisarFoto()" class="mt-4 btn-principal text-white font-bold py-2 px-4 rounded w-full">
                 Analisar Foto
             </button>
         </div>
 
         <!-- PUZZLE DO ÁUDIO (FREQUÊNCIA SONORA) -->
         <div>
-            <!-- A imagem do escritório pode ser usada aqui como contexto visual -->
             <img src="escritorio.png" alt="Escritório sombrio, a cena do crime"
                 class="rounded-md w-full mb-4 opacity-50">
             <h2 class="text-2xl font-bold mb-2 enigma-title">Enigma: O Gravador Digital</h2>
@@ -105,33 +111,26 @@
                 Abrir Ferramenta de Espectrograma (link externo)
             </a>
         </div>
-
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
     <script>
-        // --- LÓGICA DO PUZZLE DA FOTO ---
-        function analisarFoto() {
-            const foto = document.getElementById('foto-pista');
-            const mensagem = document.getElementById('mensagem-escondida');
+        // --- LÓGICA DE INICIALIZAÇÃO DO JOGO ---
+        const btnIniciar = document.getElementById('btn-iniciar');
+        const telaInicial = document.getElementById('tela-inicial');
+        const conteudoJogo = document.getElementById('conteudo-jogo');
 
-            foto.style.filter = 'brightness(0.3) contrast(2)';
-            mensagem.style.opacity = '1';
+        btnIniciar.addEventListener('click', async () => {
+            // Esconde a tela inicial e mostra o jogo
+            telaInicial.classList.add('hidden');
+            conteudoJogo.classList.remove('hidden');
 
-            setTimeout(() => {
-                foto.style.filter = 'none';
-                mensagem.style.opacity = '0';
-            }, 3000);
-        }
-
-        // --- LÓGICA DO PUZZLE DO ÁUDIO ---
-        window.onload = async () => {
+            // Inicia a lógica do áudio APÓS a interação do usuário
             try {
                 await Tone.start();
 
                 const audioPlayer = document.getElementById('audio-pista');
                 const synth = new Tone.Synth().toDestination();
-
                 const recorder = new Tone.Recorder();
                 synth.connect(recorder);
 
@@ -146,9 +145,22 @@
             } catch (error) {
                 console.error("Erro ao inicializar o áudio:", error);
             }
-        };
-    </script>
+        });
 
+        // --- LÓGICA DO PUZZLE DA FOTO ---
+        function analisarFoto() {
+            const foto = document.getElementById('foto-pista');
+            const mensagem = document.getElementById('mensagem-escondida');
+
+            foto.style.filter = 'brightness(0.3) contrast(2)';
+            mensagem.style.opacity = '1';
+
+            setTimeout(() => {
+                foto.style.filter = 'none';
+                mensagem.style.opacity = '0';
+            }, 3000);
+        }
+    </script>
 </body>
 
 </html>
