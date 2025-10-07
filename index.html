@@ -106,10 +106,23 @@
                 <!-- O áudio será gerado por JavaScript -->
             </audio>
 
-            <a href="https://spectrogram.sci.gs/" target="_blank"
-                class="mt-4 inline-block text-blue-400 hover:text-blue-300">
-                Abrir Ferramenta de Espectrograma (link externo)
-            </a>
+            <!-- Link externo com fallback para copiar -->
+            <div class="mt-4">
+                <a href="https://spectrogram.sci.gs/" target="_blank"
+                    class="inline-block text-blue-400 hover:text-blue-300">
+                    Abrir Ferramenta de Espectrograma (link externo)
+                </a>
+                <p class="text-sm text-gray-400 mt-2">Se o link não abrir, copie o endereço abaixo e cole numa nova aba
+                    do seu navegador:</p>
+                <div class="flex mt-2">
+                    <input type="text" id="link-ferramenta"
+                        class="bg-gray-800 border border-gray-600 text-gray-300 text-sm rounded-l-md p-2 w-full"
+                        value="https://spectrogram.sci.gs/" readonly>
+                    <button onclick="copiarLink()"
+                        class="bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded-r-md">Copiar</button>
+                </div>
+                <p id="feedback-copia" class="text-green-400 text-sm mt-1 h-4"></p>
+            </div>
         </div>
     </div>
 
@@ -121,11 +134,9 @@
         const conteudoJogo = document.getElementById('conteudo-jogo');
 
         btnIniciar.addEventListener('click', async () => {
-            // Esconde a tela inicial e mostra o jogo
             telaInicial.classList.add('hidden');
             conteudoJogo.classList.remove('hidden');
 
-            // Inicia a lógica do áudio APÓS a interação do usuário
             try {
                 await Tone.start();
 
@@ -159,6 +170,24 @@
                 foto.style.filter = 'none';
                 mensagem.style.opacity = '0';
             }, 3000);
+        }
+
+        // --- LÓGICA PARA COPIAR O LINK ---
+        function copiarLink() {
+            const inputElement = document.getElementById('link-ferramenta');
+            const feedbackElement = document.getElementById('feedback-copia');
+
+            inputElement.select();
+            inputElement.setSelectionRange(0, 99999); // Para dispositivos móveis
+
+            try {
+                document.execCommand('copy');
+                feedbackElement.textContent = 'Link copiado!';
+                setTimeout(() => { feedbackElement.textContent = ''; }, 2000);
+            } catch (err) {
+                feedbackElement.textContent = 'Erro ao copiar.';
+                console.error('Falha ao copiar o link: ', err);
+            }
         }
     </script>
 </body>
