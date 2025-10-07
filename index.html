@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Protótipo - O Natal Escarlate</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;700&family=UnifrakturMaguntia&display=swap"
+        rel="stylesheet">
+    <style>
+        body {
+            /* Usando a imagem da mansão como fundo do jogo */
+            background-image: url('mansao.png');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+            color: #cbd5e0;
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        .container {
+            background-color: rgba(26, 32, 44, 0.95);
+            /* Fundo quase opaco para facilitar a leitura */
+            border: 1px solid #718096;
+            box-shadow: 0 0 25px rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(8px);
+        }
+
+        .puzzle-title {
+            color: #e53e3e;
+            border-bottom: 1px solid #718096;
+            font-family: 'UnifrakturMaguntia', cursive;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .enigma-title {
+            font-family: 'Cormorant Garamond', serif;
+            color: #f6e05e;
+        }
+
+        #foto-pista {
+            transition: filter 0.5s ease-in-out;
+            cursor: pointer;
+            border: 2px solid #4a5568;
+        }
+
+        .btn-analisar {
+            background-color: #c53030;
+            transition: background-color 0.3s;
+        }
+
+        .btn-analisar:hover {
+            background-color: #9b2c2c;
+        }
+    </style>
+</head>
+
+<body class="p-4 md:p-8 flex items-center justify-center min-h-screen">
+
+    <div class="max-w-2xl mx-auto p-6 rounded-lg container">
+
+        <h1 class="text-5xl font-bold mb-6 text-center puzzle-title pb-4">O Natal Escarlate</h1>
+
+        <!-- PUZZLE DA FOTO (ANÁLISE DE IMAGEM) -->
+        <div class="mb-8">
+            <h2 class="text-2xl font-bold mb-2 enigma-title">Enigma: A Foto do Álibi</h2>
+            <p class="mb-4 text-lg">O mordomo disse que estava na sala de jantar às 22h. Analise a foto da festa tirada
+                na noite anterior para encontrar a verdade.</p>
+
+            <!-- Usando a imagem da festa para o puzzle -->
+            <div class="relative">
+                <img id="foto-pista" src="festa.png" alt="Foto da festa de Natal numa sala escura com lareira"
+                    class="rounded-md w-full">
+                <div id="mensagem-escondida"
+                    class="absolute inset-0 flex items-center justify-center text-6xl font-bold text-white opacity-0 transition-opacity duration-500"
+                    style="text-shadow: 2px 2px 5px black;">
+                    23:15
+                </div>
+            </div>
+
+            <button onclick="analisarFoto()" class="mt-4 btn-analisar text-white font-bold py-2 px-4 rounded w-full">
+                Analisar Foto
+            </button>
+        </div>
+
+        <!-- PUZZLE DO ÁUDIO (FREQUÊNCIA SONORA) -->
+        <div>
+            <!-- A imagem do escritório pode ser usada aqui como contexto visual -->
+            <img src="escritorio.png" alt="Escritório sombrio, a cena do crime"
+                class="rounded-md w-full mb-4 opacity-50">
+            <h2 class="text-2xl font-bold mb-2 enigma-title">Enigma: O Gravador Digital</h2>
+            <p class="mb-4 text-lg">No escritório, você encontrou um gravador. Dê play para ouvir o som misterioso e use
+                a ferramenta para descobrir a mensagem escondida.</p>
+
+            <audio id="audio-pista" controls class="w-full">
+                <!-- O áudio será gerado por JavaScript -->
+            </audio>
+
+            <a href="https://spectrogram.sci.gs/" target="_blank"
+                class="mt-4 inline-block text-blue-400 hover:text-blue-300">
+                Abrir Ferramenta de Espectrograma (link externo)
+            </a>
+        </div>
+
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
+    <script>
+        // --- LÓGICA DO PUZZLE DA FOTO ---
+        function analisarFoto() {
+            const foto = document.getElementById('foto-pista');
+            const mensagem = document.getElementById('mensagem-escondida');
+
+            foto.style.filter = 'brightness(0.3) contrast(2)';
+            mensagem.style.opacity = '1';
+
+            setTimeout(() => {
+                foto.style.filter = 'none';
+                mensagem.style.opacity = '0';
+            }, 3000);
+        }
+
+        // --- LÓGICA DO PUZZLE DO ÁUDIO ---
+        window.onload = async () => {
+            try {
+                await Tone.start();
+
+                const audioPlayer = document.getElementById('audio-pista');
+                const synth = new Tone.Synth().toDestination();
+
+                const recorder = new Tone.Recorder();
+                synth.connect(recorder);
+
+                recorder.start();
+                synth.triggerAttackRelease("C6", "0.5");
+
+                setTimeout(async () => {
+                    const recording = await recorder.stop();
+                    const url = URL.createObjectURL(recording);
+                    audioPlayer.src = url;
+                }, 1000);
+            } catch (error) {
+                console.error("Erro ao inicializar o áudio:", error);
+            }
+        };
+    </script>
+
+</body>
+
+</html>
