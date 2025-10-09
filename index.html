@@ -35,7 +35,7 @@
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
         }
 
-        .enigma-title {
+        .scene-title {
             font-family: 'Cormorant Garamond', serif;
             color: #f6e05e;
         }
@@ -49,7 +49,6 @@
             background-color: #9b2c2c;
         }
 
-        /* Estilo para o caderno de anotações */
         .caderno {
             background-color: #fdfaf3;
             color: #3a2d21;
@@ -61,147 +60,306 @@
             font-family: 'UnifrakturMaguntia', cursive;
             color: #5a4b40;
         }
+
+        .clickable-area {
+            position: absolute;
+            background-color: rgba(255, 255, 0, 0.2);
+            border: 1px dashed yellow;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .clickable-area:hover {
+            background-color: rgba(255, 255, 0, 0.4);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 10;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            background-color: #fdfaf3;
+            margin: 10% auto;
+            padding: 20px;
+            border: 1px solid #c7bca1;
+            width: 80%;
+            max-width: 500px;
+            color: #3a2d21;
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+        }
+
+        .character-card {
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 2px solid transparent;
+        }
+
+        .character-card:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px #f6e05e;
+            border-color: #f6e05e;
+        }
     </style>
 </head>
 
 <body class="p-4 md:p-8 flex items-center justify-center min-h-screen">
 
-    <!-- Tela Inicial com Introdução -->
-    <div id="tela-inicial" class="max-w-2xl mx-auto p-6 rounded-lg container text-center">
-        <h1 class="text-5xl font-bold mb-4 game-title pb-4">O Natal Escarlate</h1>
-        <div id="narrador-texto" class="text-xl mb-6 h-48 overflow-y-auto border p-4 rounded-md bg-black bg-opacity-20">
-            <!-- O texto da introdução aparecerá aqui, letra por letra -->
+    <!-- JANELA DO JOGO -->
+    <div id="game-window" class="max-w-5xl w-full mx-auto p-6 rounded-lg container">
+
+        <!-- TELA INICIAL -->
+        <div id="tela-inicial" class="text-center">
+            <h1 class="text-6xl font-bold mb-4 game-title pb-4">O Natal Escarlate</h1>
+
+            <div id="intro-narrador">
+                <div id="narrador-texto"
+                    class="text-xl mb-6 h-32 overflow-y-auto border p-4 rounded-md bg-black bg-opacity-20"></div>
+            </div>
+
+            <div id="escolha-personagem" class="hidden">
+                <p class="text-xl mb-4">Escolha o seu protagonista:</p>
+                <div class="flex flex-col md:flex-row justify-center gap-8">
+                    <!-- Card do Detetive Homem -->
+                    <div onclick="selecionarPersonagem('arthur')" class="character-card text-center p-4 rounded-lg">
+                        <img src="arthur.png" alt="O Detetive Arthur Hastings"
+                            class="w-48 h-48 mx-auto rounded-full object-cover border-4 border-gray-600">
+                        <h3 class="mt-4 text-2xl font-bold">Arthur Hastings</h3>
+                    </div>
+                    <!-- Card da Detetive Mulher -->
+                    <div onclick="selecionarPersonagem('jane')" class="character-card text-center p-4 rounded-lg">
+                        <img src="jane.png" alt="A Detetive Jane Marple"
+                            class="w-48 h-48 mx-auto rounded-full object-cover border-4 border-gray-600">
+                        <h3 class="mt-4 text-2xl font-bold">Jane Marple</h3>
+                    </div>
+                </div>
+            </div>
         </div>
-        <button id="btn-iniciar"
-            class="btn-principal text-white font-bold py-3 px-6 rounded text-lg opacity-0 transition-opacity duration-1000">
-            Iniciar Investigação
-        </button>
+
+        <!-- TELA PRINCIPAL DO JOGO -->
+        <div id="conteudo-jogo" class="hidden grid grid-cols-1 md:grid-cols-3 gap-6">
+            <!-- Coluna Esquerda: Cenas e Interrogatórios -->
+            <div id="main-panel" class="md:col-span-2"></div>
+            <!-- Coluna Direita: Caderno do Detetive -->
+            <div class="md:col-span-1">
+                <div class="caderno p-4 rounded-md h-full">
+                    <h2 class="text-3xl text-center caderno-titulo pb-2 border-b-2 border-gray-400">Caderno do Detetive
+                    </h2>
+                    <div>
+                        <h3 class="font-bold mt-4 text-lg">Pistas:</h3>
+                        <ul id="lista-pistas" class="list-disc list-inside text-sm min-h-[100px]"></ul>
+                        <h3 class="font-bold mt-6 text-lg">Suspeitos:</h3>
+                        <div id="lista-suspeitos" class="space-y-2 mt-2"></div>
+                        <h3 class="font-bold mt-6 text-lg">Minha Acusação:</h3>
+                        <select id="select-suspeito"
+                            class="w-full p-2 bg-white text-black border border-gray-400 rounded"></select>
+                        <button onclick="fazerAcusacao()"
+                            class="mt-4 w-full bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded">Fazer
+                            Acusação</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TELA DE FIM DE JOGO -->
+        <div id="tela-final" class="hidden text-center">
+            <h2 id="final-title" class="text-5xl font-bold game-title pb-4"></h2>
+            <img id="final-image" src="" class="w-full md:w-1/2 mx-auto my-6 rounded-lg shadow-lg">
+            <p id="final-text" class="text-xl"></p>
+            <button onclick="location.reload()"
+                class="mt-6 btn-principal text-white font-bold py-3 px-6 rounded text-lg">Jogar Novamente</button>
+        </div>
     </div>
 
-    <!-- Conteúdo Principal do Jogo (escondido no início) -->
-    <div id="conteudo-jogo"
-        class="max-w-4xl mx-auto p-6 rounded-lg container hidden grid grid-cols-1 md:grid-cols-3 gap-6">
-
-        <!-- Coluna Esquerda: Cenas do Jogo -->
-        <div class="md:col-span-2">
-            <h1 class="text-5xl font-bold mb-6 text-center game-title pb-4">Investigação</h1>
-
-            <!-- CENA 1: ENIGMA DA FOTO -->
-            <div id="cena-1" class="mb-8">
-                <h2 class="text-2xl font-bold mb-2 enigma-title">Cena 1: O Escritório</h2>
-                <p class="mb-4 text-lg">Você está no escritório de Alistair Van der Bergh. O corpo já foi removido, mas
-                    o ar ainda pesa com o silêncio da morte. A sua primeira tarefa é provar que isto foi um assassinato.
-                    Analise a foto tirada na noite anterior para encontrar a primeira inconsistência.</p>
-
-                <div class="relative">
-                    <img id="foto-pista" src="festa.png" alt="Foto da festa de Natal numa sala escura com lareira"
-                        class="rounded-md w-full cursor-pointer border-2 border-transparent hover:border-yellow-400">
-                    <div id="mensagem-escondida"
-                        class="absolute inset-0 flex items-center justify-center text-6xl font-bold text-white opacity-0 transition-opacity duration-500"
-                        style="text-shadow: 2px 2px 5px black;">
-                        23:15
-                    </div>
-                </div>
-
-                <button onclick="analisarFoto()"
-                    class="mt-4 btn-principal text-white font-bold py-2 px-4 rounded w-full">
-                    Analisar Foto do Álibi
-                </button>
-            </div>
-
-            <!-- CENA 2: ENIGMA DO ÁUDIO -->
-            <div id="cena-2" class="hidden">
-                <img src="escritorio.png" alt="Escritório sombrio, a cena do crime"
-                    class="rounded-md w-full mb-4 opacity-70">
-                <h2 class="text-2xl font-bold mb-2 enigma-title">Cena 2: A Pista Sonora</h2>
-                <p class="mb-4 text-lg">Horas depois, uma nova pista surge. Um pequeno gravador digital é encontrado
-                    debaixo da secretária da vítima. A fita contém apenas um som agudo e curto. Use a sua ferramenta de
-                    análise para decifrar a mensagem.</p>
-
-                <audio id="audio-pista" controls class="w-full"></audio>
-
-                <div class="mt-4">
-                    <button onclick="analisarAudio()"
-                        class="btn-principal text-white font-bold py-2 px-4 rounded w-full">
-                        Analisar Espectrograma
-                    </button>
-                    <div id="mensagem-audio-escondida"
-                        class="mt-4 p-4 bg-gray-900 rounded-md text-center text-2xl font-bold text-green-400 hidden">
-                        <p class="animate-pulse">Analisando frequência...</p>
-                    </div>
-                </div>
-            </div>
+    <!-- MODAL DOSSIÊ DE SUSPEITO -->
+    <div id="modal-dossie" class="modal">
+        <div class="modal-content">
+            <span onclick="fecharDossie()" class="float-right text-2xl font-bold cursor-pointer">&times;</span>
+            <div id="dossie-content"></div>
         </div>
-
-        <!-- Coluna Direita: Caderno do Detetive -->
-        <div class="md:col-span-1">
-            <div class="caderno p-4 rounded-md h-full">
-                <h2 class="text-3xl text-center caderno-titulo pb-2 border-b-2 border-gray-400">Caderno do Detetive</h2>
-
-                <div id="anotacoes">
-                    <h3 class="font-bold mt-4 text-lg">Pistas Encontradas:</h3>
-                    <ul id="lista-pistas" class="list-disc list-inside text-sm">
-                        <li class="opacity-50">Ainda nenhuma pista...</li>
-                    </ul>
-
-                    <h3 class="font-bold mt-6 text-lg">Minha Acusação Final:</h3>
-                    <p class="text-sm mb-2">Com base nas pistas, eu acuso...</p>
-                    <select id="select-suspeito" class="w-full p-2 bg-white text-black border border-gray-400 rounded">
-                        <option>Selecione um suspeito...</option>
-                        <option>Eleonora (A Viúva)</option>
-                        <option>Júnior (O Filho)</option>
-                        <option>Beatriz (A Filha)</option>
-                        <option>Dr. Arnaldo (O Médico)</option>
-                        <option>Sofia (A Sócia)</option>
-                        <option>Alfredo (O Mordomo)</option>
-                        <option>Celeste (A Governanta)</option>
-                    </select>
-
-                    <button onclick="fazerAcusacao()"
-                        class="mt-4 w-full bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded">
-                        Fazer Acusação
-                    </button>
-                </div>
-            </div>
-        </div>
-
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
     <script>
-        // --- ESTADO DO JOGO ---
+        // --- DADOS DO JOGO ---
         const gameState = {
-            pistas: [],
-            assassino: "Sofia (A Sócia)"
+            pistas: new Set(),
+            assassino: "Sophia (A Sócia)",
+            protagonista: null, // 'arthur' ou 'jane'
+            suspeitos: {
+                "Eleonora (A Viúva)": { motivo: "Ganância e paixão. Tinha um caso com o Dr. Arnaldo e queria a liberdade (e o dinheiro) para fugir com ele.", alibi: "Passei a noite no meu quarto com uma terrível dor de cabeça. O Dr. Arnaldo pode confirmar.", retrato: "eleonora.png" },
+                "Júnior (O Filho)": { motivo: "Desespero financeiro. Devia dinheiro a agiotas perigosos e foi deserdado pelo pai.", alibi: "Eu estava no salão de jogos a beber sozinho. Fiquei lá até de madrugada.", retrato: "junior.png" },
+                "Beatriz (A Filha)": { motivo: "Proteger o seu amor. Tinha um romance proibido com o mordomo, Alfredo.", alibi: "Eu estava no meu quarto a ouvir música. Não vi ninguém.", retrato: "beatriz.png" },
+                "Dr. Arnaldo (O Médico)": { motivo: "Paixão por Eleonora. Como médico, tem acesso a substâncias letais.", alibi: "Eu estava no meu consultório a organizar os meus ficheiros. Apenas saí brevemente para levar um analgésico a Eleonora.", retrato: "arnaldo.png" },
+                "Sophia (A Sócia)": { motivo: "Vingança e ganância. O seu pai foi um antigo sócio que Alistair levou à ruína.", segredo: "Ela cria aves exóticas raras como hobby.", alibi: "Eu estava na biblioteca a ler um livro sobre economia. Não saí de lá a noite toda.", retrato: "sophia.png" },
+                "Alfredo (O Mordomo)": { motivo: "Chantagem e proteção. Ama Beatriz e foi chantageado por Alistair para espiar a própria filha.", alibi: "Eu estava na sala de jantar a polir a prataria, como faço todas as noites por volta das 22h.", retrato: "alfredo.png" },
+                "Celeste (A Governanta)": { motivo: "Vingança pessoal. Teve um filho com Alistair no passado, que foi dado para adoção, e descobriu recentemente.", alibi: "Eu estava na cozinha a preparar o pequeno-almoço do dia seguinte.", retrato: "celeste.png" }
+            },
         };
 
-        // --- LÓGICA DE INICIALIZAÇÃO E NARRADOR ---
-        const btnIniciar = document.getElementById('btn-iniciar');
-        const telaInicial = document.getElementById('tela-inicial');
-        const conteudoJogo = document.getElementById('conteudo-jogo');
-        const narradorTexto = document.getElementById('narrador-texto');
+        const mainPanel = document.getElementById('main-panel');
+        const modalDossie = document.getElementById('modal-dossie');
+        const dossieContent = document.getElementById('dossie-content');
 
-        const textoIntroducao = "Véspera de Natal. A neve cai lá fora, isolando a Mansão Van der Bergh do resto do mundo. Você, um(a) detetive de renome, era apenas um(a) convidado(a) para a festa anual. Mas a manhã de Natal trouxe um presente macabro: o corpo de Alistair Van der Bergh, o patriarca. Agora, todos são suspeitos. E você é a única pessoa que pode descobrir a verdade antes que o assassino ataque novamente...";
+        // --- LÓGICA DE NAVEGAÇÃO E CENAS ---
+        function carregarCena(nomeCena) {
+            mainPanel.innerHTML = ''; // Limpa o painel
+            if (nomeCena === 'escritorio') {
+                mainPanel.innerHTML = `
+                    <h1 class="text-4xl font-bold mb-6 text-center scene-title pb-4 border-b">Cena do Crime: O Escritório</h1>
+                    <p class="mb-4">Você está no escritório de Alistair. O ar está pesado. Clique nas áreas da imagem para investigar.</p>
+                    <div class="relative">
+                        <img src="escritorio.png" alt="Cena do crime no escritório" class="rounded-md w-full">
+                        <div onclick="investigar('escritorio_secretaria')" class="clickable-area" style="top: 60%; left: 40%; width: 55%; height: 35%;"></div>
+                        <div onclick="investigar('escritorio_chao')" class="clickable-area" style="top: 80%; left: 5%; width: 40%; height: 15%;"></div>
+                        <div onclick="investigar('escritorio_lareira')" class="clickable-area" style="top: 45%; left: 65%; width: 20%; height: 25%;"></div>
+                    </div>
+                    <button onclick="carregarCena('salao')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">Ir para o Salão Principal</button>
+                `;
+            } else if (nomeCena === 'salao') {
+                mainPanel.innerHTML = `
+                    <h1 class="text-4xl font-bold mb-6 text-center scene-title pb-4 border-b">Salão Principal</h1>
+                    <p class="mb-4">Os suspeitos estão reunidos aqui, tensos. Você pode interrogá-los a partir do seu caderno.</p>
+                    <img src="festa.png" alt="Salão da festa" class="rounded-md w-full">
+                    <button onclick="carregarCena('escritorio')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">Voltar ao Escritório</button>
+                `;
+            }
+        }
 
+        function investigar(pontoDeInteresse) {
+            if (gameState.pistas.has(pontoDeInteresse)) return; // Não permite investigar a mesma pista duas vezes
+
+            switch (pontoDeInteresse) {
+                case 'escritorio_secretaria':
+                    alert("Você encontra um gravador digital e um copo de vinho virado.");
+                    adicionarPista("Gravador digital encontrado.");
+                    const audioContent = `
+                        <audio id="audio-pista" controls class="w-full mt-4"></audio>
+                        <button onclick="analisarAudio()" class="mt-2 btn-principal text-white font-bold py-2 px-4 rounded w-full">Analisar Espectrograma</button>
+                        <div id="mensagem-audio-escondida" class="mt-2 p-2 bg-gray-900 rounded-md text-center hidden"></div>
+                    `;
+                    mainPanel.insertAdjacentHTML('beforeend', audioContent);
+                    iniciarAudio();
+                    break;
+                case 'escritorio_chao':
+                    alert("Entre os papéis espalhados, você encontra um pedaço de uma carta de ameaça.");
+                    adicionarPista("Carta de ameaça de agiota (aponta para Júnior).");
+                    break;
+                case 'escritorio_lareira':
+                    alert("Nas cinzas da lareira, você encontra uma pequena pena exótica, quase intacta.");
+                    adicionarPista("Pena exótica azul e verde (pista crucial!).");
+                    break;
+            }
+            gameState.pistas.add(pontoDeInteresse); // Marca a área como investigada
+        }
+
+        // --- LÓGICA: DOSSIÊS E INTERROGATÓRIOS ---
+        function abrirDossie(suspeitoId) {
+            const suspeito = gameState.suspeitos[suspeitoId];
+            dossieContent.innerHTML = `
+                <h2 class="text-3xl text-center caderno-titulo pb-2">${suspeitoId}</h2>
+                <img src="${suspeito.retrato}" alt="Retrato de ${suspeitoId}" class="w-32 h-32 mx-auto my-4 rounded-full object-cover border-4 border-gray-400">
+                <h4 class="font-bold mt-4">Álibi:</h4>
+                <p class="italic">"${suspeito.alibi}"</p>
+                <h4 class="font-bold mt-4">Motivo Potencial:</h4>
+                <p>${suspeito.motivo}</p>
+            `;
+            if (suspeitoId === "Sophia (A Sócia)" && gameState.pistas.has("Pena exótica azul e verde (pista crucial!).")) {
+                dossieContent.innerHTML += `<div class="mt-4 p-2 bg-red-100 border border-red-400 rounded"><h4 class="font-bold text-red-700">Pista Conectada!</h4><p>${suspeito.segredo}</p></div>`;
+            }
+            dossieContent.innerHTML += `<button onclick="interrogar('${suspeitoId}')" class="mt-6 w-full btn-principal text-white font-bold py-2 px-4 rounded">Interrogar</button>`;
+            modalDossie.style.display = 'block';
+        }
+
+        function fecharDossie() {
+            modalDossie.style.display = 'none';
+        }
+
+        function interrogar(suspeitoId) {
+            fecharDossie();
+            let dialogo = gameState.suspeitos[suspeitoId].alibi;
+
+            if (suspeitoId === "Júnior (O Filho)" && gameState.pistas.has("Carta de ameaça de agiota (aponta para Júnior).")) {
+                dialogo = "Júnior: 'Está bem, eu confesso... Eu saí pela janela para me encontrar com o agiota. Mas eu não matei o meu pai, eu juro!'";
+                adicionarPista("Álibi de Júnior quebrado.");
+            } else if (suspeitoId === "Alfredo (O Mordomo)" && gameState.pistas.has("Álibi de Alfredo é falso (23:15).")) {
+                dialogo = "Alfredo: 'Fui descoberto... Eu não estava a polir a prata. Eu estava com a menina Beatriz no jardim de inverno.'";
+                adicionarPista("Álibi de Alfredo quebrado (estava com Beatriz).");
+            }
+
+            mainPanel.innerHTML = `
+                <h1 class="text-4xl font-bold mb-6 text-center scene-title pb-4 border-b">Interrogatório: ${suspeitoId}</h1>
+                <div class="p-4 bg-gray-900 rounded-md">
+                    <p class="text-lg italic">"${dialogo}"</p>
+                </div>
+                <button onclick="carregarCena('salao')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">Voltar ao Salão</button>
+             `;
+        }
+
+        // --- LÓGICA DE INICIALIZAÇÃO ---
+        const textoIntroducao = "Você foi convidado para a festa de Natal na Mansão dos Van der Bergh, um ninho de velhos segredos e novas ambições. A neve cai lá fora, isolando a todos. O que deveria ser uma celebração, no entanto, está prestes a tornar-se... uma investigação.";
         let i = 0;
         function typeWriter() {
             if (i < textoIntroducao.length) {
-                narradorTexto.innerHTML += textoIntroducao.charAt(i);
+                document.getElementById('narrador-texto').innerHTML += textoIntroducao.charAt(i);
                 i++;
-                setTimeout(typeWriter, 50); // Velocidade da digitação
+                setTimeout(typeWriter, 40);
             } else {
-                btnIniciar.classList.remove('opacity-0');
+                document.getElementById('escolha-personagem').classList.remove('hidden');
             }
         }
 
         window.onload = () => {
-            typeWriter(); // Inicia a introdução quando a página carrega
+            typeWriter();
+            atualizarCaderno();
         };
 
-        btnIniciar.addEventListener('click', async () => {
-            telaInicial.classList.add('hidden');
-            conteudoJogo.classList.remove('hidden');
+        function selecionarPersonagem(nomePersonagem) {
+            gameState.protagonista = nomePersonagem;
+            document.getElementById('tela-inicial').classList.add('hidden');
+            document.getElementById('conteudo-jogo').classList.remove('hidden');
+            carregarCena('escritorio');
+        }
 
+        // --- LÓGICA DO CADERNO ---
+        function atualizarCaderno() {
+            const listaPistas = document.getElementById('lista-pistas');
+            listaPistas.innerHTML = gameState.pistas.size === 0 ? `<li class="opacity-50">Nenhuma pista ainda...</li>` : '';
+            gameState.pistas.forEach(pista => { listaPistas.innerHTML += `<li>${pista}</li>`; });
+
+            const listaSuspeitos = document.getElementById('lista-suspeitos');
+            const selectSuspeito = document.getElementById('select-suspeito');
+            listaSuspeitos.innerHTML = '';
+            selectSuspeito.innerHTML = '<option>Selecione...</option>';
+            Object.keys(gameState.suspeitos).forEach(id => {
+                listaSuspeitos.innerHTML += `<button onclick="abrirDossie('${id}')" class="w-full text-left p-2 rounded hover:bg-yellow-100 border-b">${id}</button>`;
+                selectSuspeito.innerHTML += `<option>${id}</option>`;
+            });
+        }
+
+        function adicionarPista(textoPista) {
+            gameState.pistas.add(textoPista);
+            atualizarCaderno();
+        }
+
+        // --- PUZZLES E LÓGICA FINAL ---
+        function analisarFoto() {
+            alert("Ao analisar a foto que Júnior lhe deu, você nota o reflexo de um relógio no espelho ao fundo. Ele marca 23:15!");
+            adicionarPista("Álibi de Alfredo é falso (23:15).");
+        }
+
+        let audioIniciado = false;
+        async function iniciarAudio() {
+            if (audioIniciado) return;
             try {
                 await Tone.start();
                 const audioPlayer = document.getElementById('audio-pista');
@@ -212,74 +370,42 @@
                 synth.triggerAttackRelease("C6", "0.5");
                 setTimeout(async () => {
                     const recording = await recorder.stop();
-                    const url = URL.createObjectURL(recording);
-                    audioPlayer.src = url;
+                    audioPlayer.src = URL.createObjectURL(recording);
+                    audioIniciado = true;
                 }, 1000);
-            } catch (error) {
-                console.error("Erro ao inicializar o áudio:", error);
-            }
-        });
-
-        // --- LÓGICA DO CADERNO DE ANOTAÇÕES ---
-        const listaPistas = document.getElementById('lista-pistas');
-
-        function adicionarPista(textoPista) {
-            if (!gameState.pistas.includes(textoPista)) {
-                gameState.pistas.push(textoPista);
-                // Limpa a mensagem inicial
-                if (listaPistas.children[0] && listaPistas.children[0].innerText === "Ainda nenhuma pista...") {
-                    listaPistas.innerHTML = '';
-                }
-                const novaPista = document.createElement('li');
-                novaPista.textContent = textoPista;
-                listaPistas.appendChild(novaPista);
-            }
-        }
-
-        // --- LÓGICA DOS PUZZLES ---
-        function analisarFoto() {
-            const foto = document.getElementById('foto-pista');
-            const mensagem = document.getElementById('mensagem-escondida');
-            foto.style.filter = 'brightness(0.3) contrast(2)';
-            mensagem.style.opacity = '1';
-
-            adicionarPista("O álibi do mordomo é falso (23:15).");
-
-            setTimeout(() => {
-                foto.style.filter = 'none';
-                mensagem.style.opacity = '0';
-                // Avança para a próxima cena
-                document.getElementById('cena-1').classList.add('hidden');
-                document.getElementById('cena-2').classList.remove('hidden');
-            }, 3000);
+            } catch (error) { console.error("Erro no áudio:", error); }
         }
 
         function analisarAudio() {
             const mensagemAudio = document.getElementById('mensagem-audio-escondida');
             mensagemAudio.classList.remove('hidden');
-            mensagemAudio.innerHTML = '<p class="animate-pulse">Analisando frequência...</p>';
-
+            mensagemAudio.innerHTML = `<p class="animate-pulse">Analisando...</p>`;
             setTimeout(() => {
-                mensagemAudio.innerHTML = '<p>Padrão sonoro decodificado: <strong class="text-yellow-400">SOFIA</strong></p>';
-                adicionarPista("A segunda vítima deixou o nome 'Sofia'.");
+                mensagemAudio.innerHTML = `<p>Decodificado: <strong class="text-yellow-400">SOPHIA</strong></p>`;
+                adicionarPista("Gravador continha o nome 'Sophia'.");
             }, 2500);
         }
 
-        // --- LÓGICA DA ACUSAÇÃO FINAL ---
         function fazerAcusacao() {
-            const suspeitoSelecionado = document.getElementById('select-suspeito').value;
-            if (suspeitoSelecionado === "Selecione um suspeito...") {
-                alert("Você precisa de acusar alguém!");
-                return;
-            }
+            const suspeito = document.getElementById('select-suspeito').value;
+            if (suspeito === "Selecione...") { alert("Acuse alguém!"); return; }
 
-            if (suspeitoSelecionado === gameState.assassino) {
-                alert("CORRETO! Você desmascarou o assassino e sobreviveu ao Natal Escarlate. Fim de Jogo.");
+            const vitoria = suspeito === gameState.assassino && gameState.pistas.has("Pena exótica azul e verde (pista crucial!).") && gameState.pistas.has("Gravador continha o nome 'Sophia'.");
+
+            document.getElementById('conteudo-jogo').classList.add('hidden');
+            document.getElementById('tela-final').classList.remove('hidden');
+
+            const finalImage = document.getElementById('final-image');
+
+            if (vitoria) {
+                document.getElementById('final-title').innerText = "Caso Encerrado!";
+                finalImage.src = `vitoria_${gameState.protagonista}.png`;
+                document.getElementById('final-text').innerText = "Brilhante! Você juntou as pistas certas e ignorou as distrações. Sophia foi desmascarada, e a justiça foi feita. Você sobreviveu ao Natal Escarlate.";
             } else {
-                alert("INCORRETO! Enquanto você acusava a pessoa errada, o verdadeiro assassino preparava a sua armadilha final. Você é a próxima vítima. Fim de Jogo.");
+                document.getElementById('final-title').innerText = "Fim de Jogo";
+                finalImage.src = `derrota_${gameState.protagonista}.png`;
+                document.getElementById('final-text').innerText = `Enquanto você acusava ${suspeito}, o verdadeiro assassino sorria nas sombras. A sua escolha selou o seu destino. Você é a última vítima do Natal Escarlate.`;
             }
-            // Recarrega o jogo
-            location.reload();
         }
     </script>
 </body>
