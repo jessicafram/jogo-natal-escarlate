@@ -257,7 +257,8 @@
                     return `
                         <h1 class="text-4xl font-bold mb-4 text-center scene-title pb-4 border-b">Corredor do Segundo Andar</h1>
                         <p class="mb-4">A manhã de Natal começa com um grito. Você corre para o corredor e encontra a governanta, Celeste, em pânico em frente à porta do escritório de Alistair. A porta está trancada por dentro.</p>
-                        <img src="escritorio.png" alt="Porta do escritório" class="rounded-md w-full opacity-50">
+                        <img src="corredor.png" alt="Porta do escritório" class="rounded-md w-full">
+                        <p class="text-xl font-bold text-yellow-400 mt-6 text-center">${gameState.objetivo}</p>
                         <button onclick="carregarCena('salao')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">Ir para o Salão Principal e falar com os outros</button>
                     `;
                 case 'escritorio':
@@ -285,7 +286,7 @@
                     return `
                         <h1 class="text-4xl font-bold mb-4 text-center scene-title pb-4 border-b">Biblioteca</h1>
                         <p class="mb-4">Uma sala silenciosa e cheia de livros antigos. Você nota uma coleção de jornais antigos numa mesa de canto.</p>
-                        <img src="escritorio.png" alt="Biblioteca" class="rounded-md w-full opacity-60">
+                        <img src="biblioteca.png" alt="Biblioteca da mansão" class="rounded-md w-full opacity-60">
                         <button onclick="investigar('Artigo de Jornal')" class="mt-4 w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded">Investigar Jornais</button>
                         <button onclick="carregarCena('salao')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">Voltar ao Salão</button>
                     `;
@@ -324,7 +325,7 @@
                     <h3 class="font-bold mt-6 text-lg">Minha Acusação Final:</h3>
                     <div class="${!acusacaoAtivada ? 'disabled' : ''}">
                         <select id="select-suspeito" class="w-full p-2 bg-white text-black border border-gray-400 rounded mt-2" ${!acusacaoAtivada ? 'disabled' : ''}><option>Assassino...</option>${Object.keys(storyData.suspeitos).map(id => `<option>${id}</option>`).join('')}</select>
-                        <select id="select-arma" class="w-full p-2 bg-white text-black border border-gray-400 rounded mt-2" ${!acusacaoAtivada ? 'disabled' : ''}><option>Arma...</option><option>Faca</option><option>Agulha com Veneno</option><option>Carta com Ameaça</option></select>
+                        <select id="select-arma" class="w-full p-2 bg-white text-black border border-gray-400 rounded mt-2" ${!acusacaoAtivada ? 'disabled' : ''}><option>Arma...</option><option>Faca</option><option>Agulha com Veneno</option><option>Carta de Ameaça</option></select>
                         <select id="select-motivo" class="w-full p-2 bg-white text-black border border-gray-400 rounded mt-2" ${!acusacaoAtivada ? 'disabled' : ''}><option>Motivo...</option><option>Ganância</option><option>Vingança</option><option>Paixão</option></select>
                         <button onclick="fazerAcusacao()" class="mt-4 w-full bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded" ${!acusacaoAtivada ? 'disabled' : ''}>Fazer Acusação</button>
                     </div>
