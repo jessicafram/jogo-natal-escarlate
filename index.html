@@ -352,7 +352,8 @@
             let acusacaoAtivada = gameState.dia >= 3;
 
             let objetivosHTML = '';
-            gameState.objetivosConcluidos.forEach(obj => {
+            const objetivosOrdenados = Array.from(gameState.objetivosConcluidos);
+            objetivosOrdenados.forEach(obj => {
                 objetivosHTML += `<p class="text-sm italic objetivo-concluido">${obj}</p>`;
             });
             objetivosHTML += `<p class="text-sm italic text-yellow-700 font-bold">${gameState.objetivo}</p>`;
@@ -362,7 +363,7 @@
                 <div class="caderno p-4 rounded-md h-full">
                     <h2 class="text-3xl text-center caderno-titulo pb-2 border-b-2 border-gray-400">Caderno do Detetive</h2>
                     <h3 class="font-bold mt-4 text-lg">Objetivos (Dia ${gameState.dia}):</h3>
-                    ${objetivosHTML}
+                    <div class="space-y-1">${objetivosHTML}</div>
                     <h3 class="font-bold mt-4 text-lg">Pistas:</h3>
                     <ul class="list-disc list-inside text-sm min-h-[100px]">${pistasHTML}</ul>
                     <h3 class="font-bold mt-6 text-lg">Suspeitos:</h3>
@@ -401,6 +402,7 @@
 
         function investigar(nomePista) {
             if (gameState.pistas.has(nomePista)) { mostrarPista(nomePista); return; }
+
             adicionarPista(nomePista);
 
             if (nomePista === 'Artigo de Jornal') {
@@ -488,35 +490,34 @@
 
             if (dialogo.acao) dialogo.acao(gameState);
 
-            let objectiveUpdated = false;
-
             if (dialogo.revelaPista) {
                 adicionarPista(dialogo.revelaPista);
-                mostrarPista(dialogo.revelaPista); // Mostra a pista imediatamente
                 if (dialogo.revelaPista === "Álibi de Júnior quebrado") {
                     proximoObjetivo("Interrogue Alfredo sobre o que ele viu.");
-                    objectiveUpdated = true;
+                } else if (dialogo.revelaPista === "Veneno de Serpente") {
+                    alert("Pista adicionada: Veneno de Serpente. Você pode vê-la no seu caderno.");
                 }
             }
 
-            if (!objectiveUpdated && gameState.sophiaMencionouCarta) {
+            if (gameState.sophiaMencionouCarta) {
                 proximoObjetivo("Investigue a escrivaninha no escritório em busca de uma carta.");
-                gameState.sophiaMencionouCarta = false; // Evita que o objetivo seja redefinido
-            } else if (!objectiveUpdated && gameState.alfredoMencionouSophia) {
+                gameState.sophiaMencionouCarta = false;
+            } else if (gameState.alfredoMencionouSophia) {
                 proximoObjetivo("Procure por algo incomum na biblioteca.");
-                gameState.alfredoMencionouSophia = false; // Evita que o objetivo seja redefinido
+                gameState.alfredoMencionouSophia = false;
             }
 
             renderInterrogatorioNoModal(suspeitoId);
-            render();
+            render(); // Re-renderiza o caderno com a nova pista
         }
 
         function adicionarPista(nomePista) {
+            if (gameState.pistas.has(nomePista)) return;
             gameState.pistas.add(nomePista);
             if (gameState.dia === 1 && gameState.pistas.has("Pena Exótica") && gameState.pistas.has("Carta de Ameaça") && gameState.pistas.has("Nome 'Sophia'")) {
                 gameState.dia = 2;
                 proximoObjetivo("Interrogue os suspeitos e quebre os seus álibis restantes.");
-            } else if (gameState.dia === 2 && gameState.pistas.has("Álibi de Alfredo quebrado")) {
+            } else if (gameState.dia === 2 && gameState.pistas.has("Álibi de Alfredo quebrado") && gameState.pistas.has("Álibi de Júnior quebrado")) {
                 gameState.dia = 3;
                 proximoObjetivo("Você tem pistas suficientes. Faça a sua acusação final.");
             }
@@ -544,6 +545,7 @@
             if (gameState.dia < 2) return;
             alert("Ao analisar a foto da festa, você nota o reflexo de um relógio no espelho ao fundo. Ele marca 23:15!");
             adicionarPista("Álibi de Alfredo quebrado");
+            proximoObjetivo("Confronte Alfredo sobre a foto da festa.");
             render();
         }
 
