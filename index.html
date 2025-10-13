@@ -65,6 +65,7 @@
             color: #48bb78;
             /* Verde */
             font-weight: bold;
+            text-decoration: line-through;
         }
 
         .clickable-area {
@@ -174,12 +175,17 @@
                 "Celeste (A Governanta)": { retrato: "celeste.png", motivo: "Vingança pessoal.", alibi: "Estava na cozinha a preparar o pequeno-almoço." }
             },
             dialogos: {
+                "Sophia (A Sócia)": [
+                    { pergunta: "Onde a senhora estava na noite do crime?", resposta: "Sophia: 'Como já disse, na biblioteca. A leitura acalma a alma.'" },
+                    { pergunta: "Encontrei este gravador com o seu nome no escritório.", resposta: "Sophia: 'Ah, o meu gravador... Alistair pediu-mo emprestado. Se quer saber de problemas, fale com o filho dele, Júnior. Vi uma carta com ar ameaçador na gaveta da escrivaninha dele.'", requerPista: "Nome 'Sophia'", acao: (estado) => estado.sophiaMencionouCarta = true }
+                ],
                 "Júnior (O Filho)": [
                     { pergunta: "Onde você estava na noite do crime?", resposta: "Júnior: 'Eu estava no salão de jogos a beber sozinho. Fiquei lá até de madrugada.'" },
-                    { pergunta: "Encontrei esta carta. Os agiotas estão a pressioná-lo?", resposta: "Júnior: 'Está bem, eu confesso... Eu saí pela janela para me encontrar com eles. Mas eu não o matei!'", requerPista: "Carta de Ameaça", revelaPista: "Álibi de Júnior quebrado" }
+                    { pergunta: "Encontrei esta carta. Os agiotas estão a pressioná-lo?", resposta: "Júnior: 'Está bem, eu confesso... Eu saí pela janela para me encontrar com eles. Mas eu não o matei! Juro! Mas... eu vi Alfredo a rondar o corredor de forma suspeita essa noite.'", requerPista: "Carta de Ameaça", revelaPista: "Álibi de Júnior quebrado" }
                 ],
                 "Alfredo (O Mordomo)": [
                     { pergunta: "Qual é o seu álibi?", resposta: "Alfredo: 'Eu estava na sala de jantar a polir a prataria, por volta das 22h.'" },
+                    { pergunta: "Júnior disse que o viu a rondar o corredor. O que me diz?", resposta: "Alfredo: 'O menino Júnior tem a língua solta... Eu apenas estava a verificar as portas. Mas já que insiste, eu vi a D. Sophia a sair da biblioteca muito tarde. Ela parecia esconder algo sob o xale. Tinha uma cor... estranha, iridescente.'", requerPista: "Álibi de Júnior quebrado", acao: (estado) => estado.alfredoMencionouSophia = true },
                     { pergunta: "A foto da festa mostra que já passava das 23h. Onde você realmente estava?", resposta: "Alfredo: 'Fui descoberto... Eu não estava a polir a prata. Eu estava com a menina Beatriz.'", requerPista: "Álibi de Alfredo quebrado" }
                 ],
                 "Dr. Arnaldo (O Médico)": [
@@ -188,12 +194,12 @@
                 ]
             },
             pistas: {
-                "Gravador Digital": { imagem: "gravador_digital.png", descricao: "Um pequeno gravador de áudio. Contém um som agudo e curto." },
-                "Carta de Ameaça": { imagem: "bilhete.png", descricao: "Uma carta de um agiota ameaçando Júnior." },
-                "Pena Exótica": { imagem: "pena_exotica.png", descricao: "Uma pena iridescente, azul e verde. A pista crucial." },
-                "Veneno de Serpente": { imagem: "veneno.png", descricao: "Um frasco de veneno encontrado no consultório do Dr. Arnaldo. Uma pista falsa plantada por Sophia." },
-                "Álibi de Alfredo quebrado": { imagem: "festa.png", descricao: "A foto da festa prova que Alfredo mentiu sobre a hora." },
-                "Nome 'Sophia'": { descricao: "O gravador continha a mensagem sonora 'SOPHIA'." },
+                "Gravador Digital": { imagem: "gravador_digital.png", descricao: "Um pequeno gravador de áudio. A sua única gravação é um som agudo e curto." },
+                "Carta de Ameaça": { imagem: "bilhete.png", descricao: "Uma carta de um agiota ameaçando Júnior se ele não pagar as suas dívidas de jogo." },
+                "Pena Exótica": { imagem: "pena_exotica.png", descricao: "Uma pena iridescente, azul e verde. Parece pertencer a uma ave muito rara. A pista crucial." },
+                "Veneno de Serpente": { imagem: "veneno.png", descricao: "Um frasco de veneno de serpente encontrado no consultório do Dr. Arnaldo. Uma pista falsa?" },
+                "Álibi de Alfredo quebrado": { imagem: "festa.png", descricao: "A foto da festa prova que Alfredo mentiu sobre a hora em que estava a polir a prata." },
+                "Nome 'Sophia'": { descricao: "A análise do áudio do gravador revelou uma mensagem ultrassónica. Decodificada, diz 'SOPHIA'." },
                 "Artigo de Jornal": { descricao: "Um antigo artigo de jornal detalha a ruína da família de Sophia causada por Alistair, mencionando a lenda do 'Fantasma do Natal'." },
                 "Chave Mestra": { imagem: "chave_mestra.png", descricao: "Uma antiga chave mestra ornamentada. Deve abrir qualquer porta na mansão." }
             }
@@ -207,9 +213,12 @@
         function initGame() {
             gameState = {
                 currentScreen: 'inicio', protagonista: null, dia: 1,
-                objetivo: "Dia 1: Encontre uma forma de entrar no escritório trancado.",
+                objetivo: "Encontre uma forma de entrar no escritório trancado.",
+                objetivosConcluidos: new Set(),
                 cenaAtual: 'corredor', pistas: new Set(), interrogatorios: {},
-                escritorioTrancado: true
+                escritorioTrancado: true,
+                sophiaMencionouCarta: false,
+                alfredoMencionouSophia: false
             };
             Object.keys(storyData.suspeitos).forEach(id => { gameState.interrogatorios[id] = { interrogado: false, perguntasFeitas: new Set() }; });
             render();
@@ -266,18 +275,20 @@
                         <h1 class="text-4xl font-bold mb-4 text-center scene-title pb-4 border-b">Corredor do Segundo Andar</h1>
                         <p class="mb-4">A manhã de Natal começa com um grito. Você corre para o corredor e encontra a governanta, Celeste, em pânico em frente à porta do escritório de Alistair. A porta está trancada por dentro.</p>
                         <img src="corredor.png" alt="Porta do escritório" class="rounded-md w-full">
-                        <p class="text-xl font-bold text-yellow-400 mt-6 text-center">${gameState.objetivo}</p>
+                        <p class="text-xl font-bold text-yellow-400 mt-6 text-center">Dia ${gameState.dia}: ${gameState.objetivo}</p>
                         <button onclick="carregarCena('salao')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">Ir para o Salão Principal e falar com os outros</button>
                     `;
                 case 'escritorio':
+                    let pistasEscritorio = `<div onclick="investigar('Gravador Digital')" class="clickable-area" style="top: 80%; left: 60%;"></div>`;
+                    if (gameState.sophiaMencionouCarta) {
+                        pistasEscritorio += `<div onclick="investigar('Carta de Ameaça')" class="clickable-area" style="top: 90%; left: 25%;"></div>`;
+                    }
                     return `
                         <h1 class="text-4xl font-bold mb-4 text-center scene-title pb-4 border-b">Cena do Crime: O Escritório</h1>
                         <p class="mb-4">O corpo de Alistair está na poltrona. Não há sinais de luta, apenas uma pequena marca no pescoço. Passe o rato sobre a imagem para encontrar pistas.</p>
                         <div class="relative">
                             <img src="escritorio.png" alt="Cena do crime" class="rounded-md w-full">
-                            <div onclick="investigar('Gravador Digital')" class="clickable-area" style="top: 80%; left: 60%;"></div>
-                            <div onclick="investigar('Carta de Ameaça')" class="clickable-area" style="top: 90%; left: 25%;"></div>
-                            <div onclick="investigar('Pena Exótica')" class="clickable-area" style="top: 65%; left: 75%;"></div>
+                            ${pistasEscritorio}
                         </div>
                         <button onclick="carregarCena('salao')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">Ir para o Salão Principal</button>
                     `;
@@ -300,15 +311,19 @@
                             ${clickableKeyArea}
                         </div>
                          <button onclick="analisarFotoFesta()" class="mt-4 w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded ${gameState.dia < 2 ? 'disabled' : ''}" ${gameState.dia < 2 ? 'disabled' : ''}>Analisar Foto da Festa</button>
-                         <button onclick="carregarCena('escritorio')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded ${gameState.escritorioTrancado ? 'disabled' : ''}" ${gameState.escritorioTrancado ? 'disabled' : ''}>Voltar ao Escritório</button>
+                         <button onclick="carregarCena('escritorio')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded ${gameState.escritorioTrancado ? 'disabled' : ''}" ${gameState.escritorioTrancado ? 'disabled' : ''}>Ir para o Escritório</button>
                          <button onclick="carregarCena('biblioteca')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">Ir para a Biblioteca</button>
                     `;
                 case 'biblioteca':
+                    let pistasBiblioteca = `<button onclick="investigar('Artigo de Jornal')" class="mt-4 w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded">Investigar Jornais</button>`;
+                    if (gameState.alfredoMencionouSophia) {
+                        pistasBiblioteca += `<button onclick="investigar('Pena Exótica')" class="mt-4 w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded">Investigar o xale de Sophia</button>`;
+                    }
                     return `
                         <h1 class="text-4xl font-bold mb-4 text-center scene-title pb-4 border-b">Biblioteca</h1>
-                        <p class="mb-4">Uma sala silenciosa e cheia de livros antigos. Você nota uma coleção de jornais antigos numa mesa de canto.</p>
+                        <p class="mb-4">Uma sala silenciosa e cheia de livros antigos. Você nota uma coleção de jornais antigos numa mesa de canto, e o xale de Sophia esquecido numa poltrona.</p>
                         <img src="biblioteca.png" alt="Biblioteca da mansão" class="rounded-md w-full opacity-60">
-                        <button onclick="investigar('Artigo de Jornal')" class="mt-4 w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded">Investigar Jornais</button>
+                        ${pistasBiblioteca}
                         <button onclick="carregarCena('salao')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">Voltar ao Salão</button>
                     `;
                 default: // Interrogatório
@@ -333,14 +348,19 @@
             });
 
             let acusacaoAtivada = gameState.dia >= 3;
-            const objetivoClasse = !gameState.escritorioTrancado && gameState.dia === 1 ? 'objetivo-concluido' : '';
+
+            let objetivosHTML = '';
+            gameState.objetivosConcluidos.forEach(obj => {
+                objetivosHTML += `<p class="text-sm italic objetivo-concluido">${obj}</p>`;
+            });
+            objetivosHTML += `<p class="text-sm italic text-yellow-700 font-bold">${gameState.objetivo}</p>`;
 
 
             return `
                 <div class="caderno p-4 rounded-md h-full">
                     <h2 class="text-3xl text-center caderno-titulo pb-2 border-b-2 border-gray-400">Caderno do Detetive</h2>
-                    <h3 class="font-bold mt-4 text-lg">Objetivo Atual:</h3>
-                    <p class="text-sm italic ${objetivoClasse}">${gameState.objetivo}</p>
+                    <h3 class="font-bold mt-4 text-lg">Objetivos (Dia ${gameState.dia}):</h3>
+                    ${objetivosHTML}
                     <h3 class="font-bold mt-4 text-lg">Pistas:</h3>
                     <ul class="list-disc list-inside text-sm min-h-[100px]">${pistasHTML}</ul>
                     <h3 class="font-bold mt-6 text-lg">Suspeitos:</h3>
@@ -394,25 +414,35 @@
         function selecionarPersonagem(nome) { gameState.protagonista = nome; gameState.currentScreen = 'jogo'; render(); }
         function carregarCena(nomeCena) { gameState.cenaAtual = nomeCena; render(); }
 
+        function proximoObjetivo(novoObjetivo) {
+            gameState.objetivosConcluidos.add(gameState.objetivo);
+            gameState.objetivo = novoObjetivo;
+        }
+
         function investigar(nomePista) {
             if (gameState.pistas.has(nomePista)) { mostrarPista(nomePista); return; }
+            adicionarPista(nomePista);
 
             if (nomePista === 'Artigo de Jornal') {
-                adicionarPista(nomePista);
-                alert("Você encontrou um artigo de jornal antigo sobre a ruína de uma família... O artigo menciona a lenda de um assassino em série, o 'Fantasma do Natal', que deixava uma chave mestra escondida perto do retrato do fundador da casa. Você se lembra de ter visto um retrato no salão principal!");
-                gameState.objetivo = "Dia 1: Encontre a chave mestra no salão principal.";
-                render();
-            } else {
-                adicionarPista(nomePista);
-                mostrarPista(nomePista);
+                alert("Você encontrou um artigo de jornal antigo sobre a ruína de uma família... O artigo menciona a lenda de um assassino em série, o 'Fantasma do Natal', que deixava uma chave mestra escondida perto do retrato do fundador da casa. Você deve procurar pelo retrato no salão principal!");
+                proximoObjetivo("Encontre a chave mestra no salão principal.");
+            } else if (nomePista === 'Gravador Digital') {
+                proximoObjetivo("Analise o gravador no seu caderno.");
+            } else if (nomePista === 'Carta de Ameaça') {
+                proximoObjetivo("Confronte Júnior sobre a carta de ameaça.");
+            } else if (nomePista === 'Pena Exótica') {
+                proximoObjetivo("Conecte a Pena Exótica a um suspeito.");
             }
+
+            mostrarPista(nomePista);
+            render();
         }
 
         function encontrarChaveMestra() {
             alert("Você encontrou a chave mestra escondida atrás do retrato do fundador!");
             adicionarPista("Chave Mestra");
             gameState.escritorioTrancado = false;
-            gameState.objetivo = "Dia 1: Use a chave mestra para entrar no escritório.";
+            proximoObjetivo("Use a chave mestra para entrar no escritório.");
             render();
         }
 
@@ -442,23 +472,37 @@
             const dialogo = dialogos[index];
             document.getElementById('dialogo-resposta').innerText = dialogo.resposta;
             gameState.interrogatorios[suspeitoId].perguntasFeitas.add(index);
+
+            if (dialogo.acao) dialogo.acao(gameState);
+
             if (dialogo.revelaPista) {
                 adicionarPista(dialogo.revelaPista);
-                mostrarPista(dialogo.revelaPista);
+                if (dialogo.revelaPista === "Álibi de Júnior quebrado") {
+                    proximoObjetivo("Interrogue Alfredo sobre o que ele viu.");
+                } else {
+                    mostrarPista(dialogo.revelaPista);
+                }
             }
+
+            if (gameState.sophiaMencionouCarta) {
+                proximoObjetivo("Investigue a escrivaninha no escritório em busca de uma carta.");
+            }
+            if (gameState.alfredoMencionouSophia) {
+                proximoObjetivo("Procure por algo incomum na biblioteca.");
+            }
+
             render();
         }
 
         function adicionarPista(nomePista) {
             gameState.pistas.add(nomePista);
-            if (gameState.pistas.has("Pena Exótica") && gameState.pistas.has("Carta de Ameaça") && gameState.pistas.has("Gravador Digital") && gameState.dia === 1) {
+            if (gameState.dia === 1 && gameState.pistas.has("Pena Exótica") && gameState.pistas.has("Carta de Ameaça") && gameState.pistas.has("Nome 'Sophia'")) {
                 gameState.dia = 2;
-                gameState.objetivo = "Dia 2: Interrogue os suspeitos e quebre os seus álibis.";
-            } else if (gameState.pistas.has("Álibi de Alfredo quebrado") && gameState.pistas.has("Álibi de Júnior quebrado") && gameState.dia === 2) {
+                proximoObjetivo("Interrogue os suspeitos e quebre os seus álibis restantes.");
+            } else if (gameState.dia === 2 && gameState.pistas.has("Álibi de Alfredo quebrado") && gameState.pistas.has("Álibi de Júnior quebrado")) {
                 gameState.dia = 3;
-                gameState.objetivo = "Dia 3: Você tem pistas suficientes. Faça a sua acusação final.";
+                proximoObjetivo("Você tem pistas suficientes. Faça a sua acusação final.");
             }
-            // Não chama render() aqui para evitar re-renderizações duplas
         }
 
         function mostrarPista(nomePista) {
@@ -527,6 +571,7 @@
             setTimeout(() => {
                 el.innerHTML = `<p>Decodificado: <strong class="text-yellow-400">SOPHIA</strong></p>`;
                 adicionarPista("Nome 'Sophia'");
+                proximoObjetivo("Confronte Sophia sobre o gravador.");
                 render();
             }, 2500);
         }
