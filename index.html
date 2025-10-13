@@ -166,13 +166,13 @@
             arma: "Agulha com Veneno",
             motivo: "Vingança",
             suspeitos: {
-                "Eleonora (A Viúva)": { retrato: "eleonora.png", motivo: "Ganância e paixão.", alibi: "Passei a noite no meu quarto com dor de cabeça." },
-                "Júnior (O Filho)": { retrato: "junior.png", motivo: "Desespero financeiro.", alibi: "Estava no salão de jogos a beber sozinho." },
-                "Beatriz (A Filha)": { retrato: "beatriz.png", motivo: "Proteger o seu amor.", alibi: "Estava no meu quarto a ouvir música." },
-                "Dr. Arnaldo (O Médico)": { retrato: "arnaldo.png", motivo: "Paixão por Eleonora.", alibi: "Estava no meu consultório." },
-                "Sophia (A Sócia)": { retrato: "sophia.png", motivo: "Vingança pela ruína da sua família.", alibi: "Estava na biblioteca a ler.", segredo: "Ela cria aves exóticas raras como hobby." },
-                "Alfredo (O Mordomo)": { retrato: "alfredo.png", motivo: "Chantagem e proteção.", alibi: "Estava na sala de jantar a polir a prataria por volta das 22h." },
-                "Celeste (A Governanta)": { retrato: "celeste.png", motivo: "Vingança pessoal.", alibi: "Estava na cozinha a preparar o pequeno-almoço." }
+                "Eleonora (A Viúva)": { retrato: "eleonora.png", descricaoConexao: "A ambiciosa esposa da vítima, com um segredo.", motivo: "Ganância e paixão.", alibi: "Passei a noite no meu quarto com dor de cabeça." },
+                "Júnior (O Filho)": { retrato: "junior.png", descricaoConexao: "O filho da vítima, desesperado por dinheiro.", motivo: "Desespero financeiro.", alibi: "Estava no salão de jogos a beber sozinho." },
+                "Beatriz (A Filha)": { retrato: "beatriz.png", descricaoConexao: "A filha devota, que faria tudo para proteger quem ama.", motivo: "Proteger o seu amor.", alibi: "Estava no meu quarto a ouvir música." },
+                "Dr. Arnaldo (O Médico)": { retrato: "arnaldo.png", descricaoConexao: "O médico da família, apaixonado pela viúva.", motivo: "Paixão por Eleonora.", alibi: "Estava no meu consultório." },
+                "Sophia (A Sócia)": { retrato: "sophia.png", descricaoConexao: "A sócia de negócios que Alistair levou à ruína.", motivo: "Vingança pela ruína da sua família.", alibi: "Estava na biblioteca a ler.", segredo: "Ela cria aves exóticas raras como hobby." },
+                "Alfredo (O Mordomo)": { retrato: "alfredo.png", descricaoConexao: "O mordomo leal, que sabe mais do que aparenta.", motivo: "Chantagem e proteção.", alibi: "Estava na sala de jantar a polir a prataria por volta das 22h." },
+                "Celeste (A Governanta)": { retrato: "celeste.png", descricaoConexao: "A governanta que encontrou o corpo e parece abalada.", motivo: "Vingança pessoal.", alibi: "Estava na cozinha a preparar o pequeno-almoço." }
             },
             dialogos: {
                 "Sophia (A Sócia)": [
@@ -326,9 +326,6 @@
                         ${pistasBiblioteca}
                         <button onclick="carregarCena('salao')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">Voltar ao Salão</button>
                     `;
-                default: // Interrogatório
-                    const suspeitoId = gameState.cenaAtual.replace('interrogatorio_', '');
-                    return renderInterrogatorio(suspeitoId);
             }
         }
 
@@ -373,30 +370,6 @@
                         <button onclick="fazerAcusacao()" class="mt-4 w-full bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded" ${!acusacaoAtivada ? 'disabled' : ''}>Fazer Acusação</button>
                     </div>
                 </div>`;
-        }
-
-        function renderInterrogatorio(suspeitoId) {
-            let perguntasHTML = '';
-            const dialogosDisponiveis = storyData.dialogos[suspeitoId] || [{ pergunta: "Qual o seu álibi?", resposta: `"${storyData.suspeitos[suspeitoId].alibi}"` }];
-
-            dialogosDisponiveis.forEach((dialogo, index) => {
-                const jaPerguntado = gameState.interrogatorios[suspeitoId].perguntasFeitas.has(index);
-                const desativado = dialogo.requerPista && !gameState.pistas.has(dialogo.requerPista);
-                perguntasHTML += `
-                    <button onclick="fazerPergunta('${suspeitoId}', ${index})" 
-                            class="w-full text-left p-2 rounded text-white interrogation-btn ${jaPerguntado ? 'opacity-50' : ''} ${desativado ? 'disabled' : ''}"
-                            ${desativado ? 'disabled' : ''}>
-                        ${dialogo.pergunta} ${desativado ? '(Requer Pista)' : ''}
-                    </button>`;
-            });
-
-            return `
-                <h1 class="text-4xl font-bold mb-4 text-center scene-title pb-4 border-b">Interrogatório: ${suspeitoId}</h1>
-                <img src="${storyData.suspeitos[suspeitoId].retrato}" alt="Retrato de ${suspeitoId}" class="w-48 h-48 mx-auto my-4 rounded-full object-cover border-4 border-gray-600">
-                <div id="dialogo-resposta" class="p-4 bg-gray-900 rounded-md min-h-[100px] italic text-center">Selecione uma pergunta abaixo.</div>
-                <div class="mt-4 space-y-2">${perguntasHTML}</div>
-                <button onclick="carregarCena('salao')" class="mt-6 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">Voltar ao Salão</button>
-            `;
         }
 
         function typeWriter() {
@@ -449,28 +422,62 @@
         function abrirDossie(suspeitoId) {
             const suspeito = storyData.suspeitos[suspeitoId];
             let content = `
-                <h2 class="text-3xl text-center caderno-titulo pb-2">${suspeitoId}</h2>
-                <img src="${suspeito.retrato}" alt="Retrato de ${suspeitoId}" class="w-32 h-32 mx-auto my-4 rounded-full object-cover border-4 border-gray-400">
-                <h4 class="font-bold mt-4">Álibi Declarado:</h4>
-                <p class="italic">"${suspeito.alibi}"</p>
-                <h4 class="font-bold mt-4">Motivo Potencial:</h4>
-                <p>${suspeito.motivo}</p>`;
-
-            if (suspeitoId === "Sophia (A Sócia)" && gameState.pistas.has("Pena Exótica")) {
-                content += `<div class="mt-4 p-2 bg-red-100 border border-red-400 rounded"><h4 class="font-bold text-red-700">Pista Conectada!</h4><p>${suspeito.segredo}</p></div>`;
-            }
-            content += `<button onclick="carregarCena('interrogatorio_${suspeitoId}')" class="mt-6 w-full btn-principal text-white font-bold py-2 px-4 rounded">Interrogar</button>`;
+                <div id="dossie-view">
+                    <h2 class="text-3xl text-center caderno-titulo pb-2">${suspeitoId}</h2>
+                    <img src="${suspeito.retrato}" alt="Retrato de ${suspeitoId}" class="w-32 h-32 mx-auto my-4 rounded-full object-cover border-4 border-gray-400">
+                    <p class="text-center italic mb-4">"${suspeito.descricaoConexao}"</p>
+                    <button onclick="renderInterrogatorioNoModal('${suspeitoId}')" class="mt-6 w-full btn-principal text-white font-bold py-2 px-4 rounded">Interrogar</button>
+                </div>`;
 
             modalBody.innerHTML = content;
             modalContainer.style.display = 'block';
         }
 
+        function renderInterrogatorioNoModal(suspeitoId) {
+            const suspeito = storyData.suspeitos[suspeitoId];
+            let perguntasHTML = '';
+            const dialogosDisponiveis = storyData.dialogos[suspeitoId] || [{ pergunta: "Qual o seu álibi?", resposta: `"${suspeito.alibi}"` }];
+
+            dialogosDisponiveis.forEach((dialogo, index) => {
+                const jaPerguntado = gameState.interrogatorios[suspeitoId].perguntasFeitas.has(index);
+                const desativado = dialogo.requerPista && !gameState.pistas.has(dialogo.requerPista);
+                perguntasHTML += `
+                    <button onclick="fazerPerguntaNoModal('${suspeitoId}', ${index})" 
+                            class="w-full text-left p-2 rounded text-white interrogation-btn ${jaPerguntado ? 'opacity-50' : ''} ${desativado ? 'disabled' : ''}"
+                            ${desativado ? 'disabled' : ''}>
+                        ${dialogo.pergunta} ${desativado ? ' (Requer Pista)' : ''}
+                    </button>`;
+            });
+
+            const interrogatorioHTML = `
+                <h2 class="text-3xl text-center caderno-titulo pb-2">${suspeitoId}</h2>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center mb-4">
+                    <div class="md:col-span-1 flex justify-center">
+                        <img src="${suspeito.retrato}" alt="Retrato de ${suspeitoId}" class="w-24 h-24 rounded-full object-cover border-4 border-gray-400">
+                    </div>
+                    <div class="md:col-span-2 text-sm">
+                        <p class="italic">"${suspeito.descricaoConexao}"</p>
+                        <h4 class="font-bold mt-2">Álibi Declarado:</h4>
+                        <p class="italic">"${suspeito.alibi}"</p>
+                    </div>
+                </div>
+                <div id="dialogo-resposta-modal" class="p-4 bg-gray-800 text-white rounded-md min-h-[80px] italic text-center mb-4">Selecione uma pergunta para fazer.</div>
+                <div class="space-y-2">${perguntasHTML}</div>
+            `;
+            modalBody.innerHTML = interrogatorioHTML;
+        }
+
         function fecharModal() { modalContainer.style.display = 'none'; }
 
-        function fazerPergunta(suspeitoId, index) {
+        function fazerPerguntaNoModal(suspeitoId, index) {
             const dialogos = storyData.dialogos[suspeitoId] || [{ pergunta: "Qual o seu álibi?", resposta: `"${storyData.suspeitos[suspeitoId].alibi}"` }];
             const dialogo = dialogos[index];
-            document.getElementById('dialogo-resposta').innerText = dialogo.resposta;
+
+            const respostaDiv = document.getElementById('dialogo-resposta-modal');
+            if (respostaDiv) {
+                respostaDiv.innerText = dialogo.resposta;
+            }
+
             gameState.interrogatorios[suspeitoId].perguntasFeitas.add(index);
 
             if (dialogo.acao) dialogo.acao(gameState);
@@ -479,8 +486,6 @@
                 adicionarPista(dialogo.revelaPista);
                 if (dialogo.revelaPista === "Álibi de Júnior quebrado") {
                     proximoObjetivo("Interrogue Alfredo sobre o que ele viu.");
-                } else {
-                    mostrarPista(dialogo.revelaPista);
                 }
             }
 
@@ -491,6 +496,7 @@
                 proximoObjetivo("Procure por algo incomum na biblioteca.");
             }
 
+            renderInterrogatorioNoModal(suspeitoId);
             render();
         }
 
