@@ -61,6 +61,12 @@
             color: #5a4b40;
         }
 
+        .objetivo-concluido {
+            color: #48bb78;
+            /* Verde */
+            font-weight: bold;
+        }
+
         .clickable-area {
             position: absolute;
             cursor: pointer;
@@ -116,6 +122,7 @@
         .disabled {
             opacity: 0.5;
             cursor: not-allowed;
+            background-color: #4A5568 !important;
         }
 
         .interrogation-btn {
@@ -187,7 +194,8 @@
                 "Veneno de Serpente": { imagem: "veneno.png", descricao: "Um frasco de veneno encontrado no consultório do Dr. Arnaldo. Uma pista falsa plantada por Sophia." },
                 "Álibi de Alfredo quebrado": { imagem: "festa.png", descricao: "A foto da festa prova que Alfredo mentiu sobre a hora." },
                 "Nome 'Sophia'": { descricao: "O gravador continha a mensagem sonora 'SOPHIA'." },
-                "Artigo de Jornal": { descricao: "Um antigo artigo de jornal detalha a ruína da família de Sophia causada por Alistair, mencionando a lenda do 'Fantasma do Natal'." }
+                "Artigo de Jornal": { descricao: "Um antigo artigo de jornal detalha a ruína da família de Sophia causada por Alistair, mencionando a lenda do 'Fantasma do Natal'." },
+                "Chave Mestra": { imagem: "chave_mestra.png", descricao: "Uma antiga chave mestra ornamentada. Deve abrir qualquer porta na mansão." }
             }
         };
 
@@ -274,11 +282,24 @@
                         <button onclick="carregarCena('salao')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">Ir para o Salão Principal</button>
                     `;
                 case 'salao':
+                    let salaoDesc = "Os suspeitos estão reunidos aqui, tensos.";
+                    if (!gameState.escritorioTrancado) {
+                        salaoDesc += " Consulte os dossiês no seu caderno para iniciar um interrogatório.";
+                    }
+
+                    let clickableKeyArea = '';
+                    if (gameState.pistas.has('Artigo de Jornal') && gameState.escritorioTrancado) {
+                        clickableKeyArea = `<div onclick="encontrarChaveMestra()" class="clickable-area" style="top: 30%; left: 15%; width: 50px; height: 50px;"></div>`;
+                    }
+
                     return `
                         <h1 class="text-4xl font-bold mb-4 text-center scene-title pb-4 border-b">Salão Principal</h1>
-                        <p class="mb-4">Os suspeitos estão reunidos aqui, tensos. Consulte os dossiês no seu caderno para iniciar um interrogatório.</p>
-                        <img src="festa.png" alt="Salão da festa" class="rounded-md w-full" id="foto-festa">
-                         <button onclick="analisarFotoFesta()" class="mt-4 w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded">Analisar Foto da Festa</button>
+                        <p class="mb-4">${salaoDesc}</p>
+                        <div class="relative">
+                            <img src="festa.png" alt="Salão da festa" class="rounded-md w-full" id="foto-festa">
+                            ${clickableKeyArea}
+                        </div>
+                         <button onclick="analisarFotoFesta()" class="mt-4 w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded ${gameState.dia < 2 ? 'disabled' : ''}" ${gameState.dia < 2 ? 'disabled' : ''}>Analisar Foto da Festa</button>
                          <button onclick="carregarCena('escritorio')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded ${gameState.escritorioTrancado ? 'disabled' : ''}" ${gameState.escritorioTrancado ? 'disabled' : ''}>Voltar ao Escritório</button>
                          <button onclick="carregarCena('biblioteca')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">Ir para a Biblioteca</button>
                     `;
@@ -312,12 +333,14 @@
             });
 
             let acusacaoAtivada = gameState.dia >= 3;
+            const objetivoClasse = !gameState.escritorioTrancado && gameState.dia === 1 ? 'objetivo-concluido' : '';
+
 
             return `
                 <div class="caderno p-4 rounded-md h-full">
                     <h2 class="text-3xl text-center caderno-titulo pb-2 border-b-2 border-gray-400">Caderno do Detetive</h2>
                     <h3 class="font-bold mt-4 text-lg">Objetivo Atual:</h3>
-                    <p class="text-sm italic">${gameState.objetivo}</p>
+                    <p class="text-sm italic ${objetivoClasse}">${gameState.objetivo}</p>
                     <h3 class="font-bold mt-4 text-lg">Pistas:</h3>
                     <ul class="list-disc list-inside text-sm min-h-[100px]">${pistasHTML}</ul>
                     <h3 class="font-bold mt-6 text-lg">Suspeitos:</h3>
@@ -334,7 +357,7 @@
 
         function renderInterrogatorio(suspeitoId) {
             let perguntasHTML = '';
-            const dialogosDisponiveis = storyData.dialogos[suspeitoId] || [{ pergunta: "Qual o seu álibi?", resposta: storyData.suspeitos[suspeitoId].alibi }];
+            const dialogosDisponiveis = storyData.dialogos[suspeitoId] || [{ pergunta: "Qual o seu álibi?", resposta: `"${storyData.suspeitos[suspeitoId].alibi}"` }];
 
             dialogosDisponiveis.forEach((dialogo, index) => {
                 const jaPerguntado = gameState.interrogatorios[suspeitoId].perguntasFeitas.has(index);
@@ -373,16 +396,24 @@
 
         function investigar(nomePista) {
             if (gameState.pistas.has(nomePista)) { mostrarPista(nomePista); return; }
-            adicionarPista(nomePista);
 
-            if (nomePista !== 'Artigo de Jornal') {
-                mostrarPista(nomePista);
-            } else {
-                alert("Você encontrou um artigo de jornal antigo sobre a ruína de uma família de empresários locais, causada por Alistair. O artigo menciona a lenda de um assassino em série, o 'Fantasma do Natal', que atacava a cada década e deixava uma chave mestra escondida perto do retrato do fundador da casa. Você se lembra de ter visto um retrato no salão principal!");
-                gameState.escritorioTrancado = false;
-                gameState.objetivo = "Dia 1: Use a chave mestra para entrar no escritório.";
+            if (nomePista === 'Artigo de Jornal') {
+                adicionarPista(nomePista);
+                alert("Você encontrou um artigo de jornal antigo sobre a ruína de uma família... O artigo menciona a lenda de um assassino em série, o 'Fantasma do Natal', que deixava uma chave mestra escondida perto do retrato do fundador da casa. Você se lembra de ter visto um retrato no salão principal!");
+                gameState.objetivo = "Dia 1: Encontre a chave mestra no salão principal.";
                 render();
+            } else {
+                adicionarPista(nomePista);
+                mostrarPista(nomePista);
             }
+        }
+
+        function encontrarChaveMestra() {
+            alert("Você encontrou a chave mestra escondida atrás do retrato do fundador!");
+            adicionarPista("Chave Mestra");
+            gameState.escritorioTrancado = false;
+            gameState.objetivo = "Dia 1: Use a chave mestra para entrar no escritório.";
+            render();
         }
 
         function abrirDossie(suspeitoId) {
@@ -407,11 +438,14 @@
         function fecharModal() { modalContainer.style.display = 'none'; }
 
         function fazerPergunta(suspeitoId, index) {
-            const dialogos = storyData.dialogos[suspeitoId] || [{ pergunta: "Qual o seu álibi?", resposta: storyData.suspeitos[suspeitoId].alibi }];
+            const dialogos = storyData.dialogos[suspeitoId] || [{ pergunta: "Qual o seu álibi?", resposta: `"${storyData.suspeitos[suspeitoId].alibi}"` }];
             const dialogo = dialogos[index];
             document.getElementById('dialogo-resposta').innerText = dialogo.resposta;
             gameState.interrogatorios[suspeitoId].perguntasFeitas.add(index);
-            if (dialogo.revelaPista) adicionarPista(dialogo.revelaPista);
+            if (dialogo.revelaPista) {
+                adicionarPista(dialogo.revelaPista);
+                mostrarPista(dialogo.revelaPista);
+            }
             render();
         }
 
@@ -424,7 +458,7 @@
                 gameState.dia = 3;
                 gameState.objetivo = "Dia 3: Você tem pistas suficientes. Faça a sua acusação final.";
             }
-            render();
+            // Não chama render() aqui para evitar re-renderizações duplas
         }
 
         function mostrarPista(nomePista) {
@@ -446,8 +480,10 @@
         }
 
         function analisarFotoFesta() {
+            if (gameState.dia < 2) return;
             alert("Ao analisar a foto da festa, você nota o reflexo de um relógio no espelho ao fundo. Ele marca 23:15!");
             adicionarPista("Álibi de Alfredo quebrado");
+            render();
         }
 
         function fazerAcusacao() {
@@ -491,6 +527,7 @@
             setTimeout(() => {
                 el.innerHTML = `<p>Decodificado: <strong class="text-yellow-400">SOPHIA</strong></p>`;
                 adicionarPista("Nome 'Sophia'");
+                render();
             }, 2500);
         }
 
