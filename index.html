@@ -65,7 +65,6 @@
             color: #48bb78;
             /* Verde */
             font-weight: bold;
-            text-decoration: line-through;
         }
 
         .clickable-area {
@@ -220,7 +219,13 @@
                 sophiaMencionouCarta: false,
                 alfredoMencionouSophia: false
             };
-            Object.keys(storyData.suspeitos).forEach(id => { gameState.interrogatorios[id] = { interrogado: false, perguntasFeitas: new Set() }; });
+            Object.keys(storyData.suspeitos).forEach(id => {
+                gameState.interrogatorios[id] = {
+                    interrogado: false,
+                    perguntasFeitas: new Set(),
+                    ultimaResposta: null
+                };
+            });
             render();
         }
 
@@ -365,7 +370,7 @@
                     <h3 class="font-bold mt-6 text-lg">Minha Acusação Final:</h3>
                     <div class="${!acusacaoAtivada ? 'disabled' : ''}">
                         <select id="select-suspeito" class="w-full p-2 bg-white text-black border border-gray-400 rounded mt-2" ${!acusacaoAtivada ? 'disabled' : ''}><option>Assassino...</option>${Object.keys(storyData.suspeitos).map(id => `<option>${id}</option>`).join('')}</select>
-                        <select id="select-arma" class="w-full p-2 bg-white text-black border border-gray-400 rounded mt-2" ${!acusacaoAtivada ? 'disabled' : ''}><option>Arma...</option><option>Faca</option><option>Agulha com Veneno</option><option>Carta de Ameaça</option></select>
+                        <select id="select-arma" class="w-full p-2 bg-white text-black border border-gray-400 rounded mt-2" ${!acusacaoAtivada ? 'disabled' : ''}><option>Arma...</option><option>Faca</option><option>Agulha com Veneno</option><option>Pena Exótica</option><option>Carta de Ameaça</option></select>
                         <select id="select-motivo" class="w-full p-2 bg-white text-black border border-gray-400 rounded mt-2" ${!acusacaoAtivada ? 'disabled' : ''}><option>Motivo...</option><option>Ganância</option><option>Vingança</option><option>Paixão</option></select>
                         <button onclick="fazerAcusacao()" class="mt-4 w-full bg-gray-700 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded" ${!acusacaoAtivada ? 'disabled' : ''}>Fazer Acusação</button>
                     </div>
@@ -388,8 +393,10 @@
         function carregarCena(nomeCena) { gameState.cenaAtual = nomeCena; render(); }
 
         function proximoObjetivo(novoObjetivo) {
-            gameState.objetivosConcluidos.add(gameState.objetivo);
-            gameState.objetivo = novoObjetivo;
+            if (gameState.objetivo !== novoObjetivo && !gameState.objetivosConcluidos.has(novoObjetivo)) {
+                gameState.objetivosConcluidos.add(gameState.objetivo);
+                gameState.objetivo = novoObjetivo;
+            }
         }
 
         function investigar(nomePista) {
@@ -420,6 +427,7 @@
         }
 
         function abrirDossie(suspeitoId) {
+            gameState.interrogatorios[suspeitoId].ultimaResposta = null;
             const suspeito = storyData.suspeitos[suspeitoId];
             let content = `
                 <div id="dossie-view">
@@ -449,6 +457,8 @@
                     </button>`;
             });
 
+            const respostaAtual = gameState.interrogatorios[suspeitoId].ultimaResposta || "Selecione uma pergunta para fazer.";
+
             const interrogatorioHTML = `
                 <h2 class="text-3xl text-center caderno-titulo pb-2">${suspeitoId}</h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-center mb-4">
@@ -461,7 +471,7 @@
                         <p class="italic">"${suspeito.alibi}"</p>
                     </div>
                 </div>
-                <div id="dialogo-resposta-modal" class="p-4 bg-gray-800 text-white rounded-md min-h-[80px] italic text-center mb-4">Selecione uma pergunta para fazer.</div>
+                <div id="dialogo-resposta-modal" class="p-4 bg-gray-800 text-white rounded-md min-h-[80px] italic text-center mb-4 flex items-center justify-center">${respostaAtual}</div>
                 <div class="space-y-2">${perguntasHTML}</div>
             `;
             modalBody.innerHTML = interrogatorioHTML;
@@ -473,27 +483,28 @@
             const dialogos = storyData.dialogos[suspeitoId] || [{ pergunta: "Qual o seu álibi?", resposta: `"${storyData.suspeitos[suspeitoId].alibi}"` }];
             const dialogo = dialogos[index];
 
-            const respostaDiv = document.getElementById('dialogo-resposta-modal');
-            if (respostaDiv) {
-                respostaDiv.innerText = dialogo.resposta;
-            }
-
+            gameState.interrogatorios[suspeitoId].ultimaResposta = dialogo.resposta;
             gameState.interrogatorios[suspeitoId].perguntasFeitas.add(index);
 
             if (dialogo.acao) dialogo.acao(gameState);
 
+            let objectiveUpdated = false;
+
             if (dialogo.revelaPista) {
                 adicionarPista(dialogo.revelaPista);
+                mostrarPista(dialogo.revelaPista); // Mostra a pista imediatamente
                 if (dialogo.revelaPista === "Álibi de Júnior quebrado") {
                     proximoObjetivo("Interrogue Alfredo sobre o que ele viu.");
+                    objectiveUpdated = true;
                 }
             }
 
-            if (gameState.sophiaMencionouCarta) {
+            if (!objectiveUpdated && gameState.sophiaMencionouCarta) {
                 proximoObjetivo("Investigue a escrivaninha no escritório em busca de uma carta.");
-            }
-            if (gameState.alfredoMencionouSophia) {
+                gameState.sophiaMencionouCarta = false; // Evita que o objetivo seja redefinido
+            } else if (!objectiveUpdated && gameState.alfredoMencionouSophia) {
                 proximoObjetivo("Procure por algo incomum na biblioteca.");
+                gameState.alfredoMencionouSophia = false; // Evita que o objetivo seja redefinido
             }
 
             renderInterrogatorioNoModal(suspeitoId);
@@ -505,7 +516,7 @@
             if (gameState.dia === 1 && gameState.pistas.has("Pena Exótica") && gameState.pistas.has("Carta de Ameaça") && gameState.pistas.has("Nome 'Sophia'")) {
                 gameState.dia = 2;
                 proximoObjetivo("Interrogue os suspeitos e quebre os seus álibis restantes.");
-            } else if (gameState.dia === 2 && gameState.pistas.has("Álibi de Alfredo quebrado") && gameState.pistas.has("Álibi de Júnior quebrado")) {
+            } else if (gameState.dia === 2 && gameState.pistas.has("Álibi de Alfredo quebrado")) {
                 gameState.dia = 3;
                 proximoObjetivo("Você tem pistas suficientes. Faça a sua acusação final.");
             }
