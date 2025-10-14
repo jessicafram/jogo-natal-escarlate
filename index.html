@@ -527,6 +527,17 @@
                 }
             }
 
+            // Lógica para avançar o objetivo após confrontar Alfredo sobre a foto
+            if (suspeitoId === 'Alfredo (O Mordomo)' && dialogo.pergunta.includes('foto da festa')) {
+                if (!gameState.pistas.has("Álibi de Sophia quebrado")) {
+                    proximoObjetivo("Investigue a tentativa de Sophia de incriminar o Dr. Arnaldo.");
+                } else if (!gameState.pistas.has("Conexão da Pena")) {
+                    proximoObjetivo("Descubra a origem da pena exótica.");
+                } else {
+                    proximoObjetivo("Reúna as suas conclusões para a acusação final.");
+                }
+            }
+
             if (dialogo.acao && suspeitoId === "Sophia (A Sócia)") {
                 if (gameState.sophiaMencionouEleonora) {
                     adicionarPista("Sophia mencionou Eleonora");
