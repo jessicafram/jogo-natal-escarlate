@@ -13,7 +13,7 @@
         rel="stylesheet">
     <style>
         body {
-            background-image: url('mansao.png');
+            background-image: url('https://placehold.co/1920x1080/1a202c/2d3748?text=Mansao+Escura');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -75,6 +75,8 @@
             width: 40px;
             height: 40px;
             transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 224, 0.0);
+            /* Invisível por padrão */
         }
 
         .clickable-area:hover {
@@ -138,17 +140,52 @@
             opacity: 0.5;
             cursor: not-allowed;
         }
+
+        #music-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            background-color: rgba(26, 32, 44, 0.8);
+            color: #f6e05e;
+            border: 1px solid #718096;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        #music-toggle:hover {
+            background-color: #2D3748;
+            transform: scale(1.1);
+        }
     </style>
 </head>
 
 <body class="p-4 md:p-8 flex items-center justify-center min-h-screen">
 
-    <!-- JANELA DO JOGO -->
+    <button id="music-toggle">
+        <svg id="music-on-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 18V5l12-2v13"></path>
+            <circle cx="6" cy="18" r="3"></circle>
+            <circle cx="18" cy="16" r="3"></circle>
+        </svg>
+        <svg id="music-off-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+            class="hidden">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+        </svg>
+    </button>
+
     <div id="game-window" class="max-w-5xl w-full mx-auto p-6 rounded-lg container">
-        <!-- O conteúdo do jogo será renderizado aqui pelo JavaScript -->
     </div>
 
-    <!-- MODAIS (para Dossiês e Pistas) -->
     <div id="modal-container" class="modal">
         <div class="modal-content">
             <span onclick="fecharModal()"
@@ -165,13 +202,13 @@
             arma: "Agulha com Veneno",
             motivo: "Vingança",
             suspeitos: {
-                "Eleonora (A Viúva)": { retrato: "eleonora.png", descricaoConexao: "A ambiciosa esposa da vítima, com um segredo.", motivo: "Ganância e paixão.", alibi: "Passei a noite no meu quarto com dor de cabeça." },
-                "Júnior (O Filho)": { retrato: "junior.png", descricaoConexao: "O filho da vítima, desesperado por dinheiro.", motivo: "Desespero financeiro.", alibi: "Estava no salão de jogos a beber sozinho." },
-                "Beatriz (A Filha)": { retrato: "beatriz.png", descricaoConexao: "A filha devota, que faria tudo para proteger quem ama.", motivo: "Proteger o seu amor.", alibi: "Estava no meu quarto a ouvir música." },
-                "Dr. Arnaldo (O Médico)": { retrato: "arnaldo.png", descricaoConexao: "O médico da família, apaixonado pela viúva.", motivo: "Paixão por Eleonora.", alibi: "Estava no meu consultório." },
-                "Sophia (A Sócia)": { retrato: "sophia.png", descricaoConexao: "A sócia de negócios que Alistair levou à ruína.", motivo: "Vingança pela ruína da sua família.", alibi: "Estava na biblioteca a ler.", segredo: "Ela cria aves exóticas raras como hobby." },
-                "Alfredo (O Mordomo)": { retrato: "alfredo.png", descricaoConexao: "O mordomo leal, que sabe mais do que aparenta.", motivo: "Chantagem e proteção.", alibi: "Estava na sala de jantar a polir a prataria por volta das 22h." },
-                "Celeste (A Governanta)": { retrato: "celeste.png", descricaoConexao: "A governanta que encontrou o corpo e parece abalada.", motivo: "Vingança pessoal.", alibi: "Estava na cozinha a preparar o pequeno-almoço." }
+                "Eleonora (A Viúva)": { retrato: "https://placehold.co/200x200/5a4b40/ffffff?text=Eleonora", descricaoConexao: "A ambiciosa esposa da vítima, com um segredo.", motivo: "Ganância e paixão.", alibi: "Passei a noite no meu quarto com dor de cabeça." },
+                "Júnior (O Filho)": { retrato: "https://placehold.co/200x200/5a4b40/ffffff?text=Junior", descricaoConexao: "O filho da vítima, desesperado por dinheiro.", motivo: "Desespero financeiro.", alibi: "Estava no salão de jogos a beber sozinho." },
+                "Beatriz (A Filha)": { retrato: "https://placehold.co/200x200/5a4b40/ffffff?text=Beatriz", descricaoConexao: "A filha devota, que faria tudo para proteger quem ama.", motivo: "Proteger o seu amor.", alibi: "Estava no meu quarto a ouvir música." },
+                "Dr. Arnaldo (O Médico)": { retrato: "https://placehold.co/200x200/5a4b40/ffffff?text=Dr+Arnaldo", descricaoConexao: "O médico da família, apaixonado pela viúva.", motivo: "Paixão por Eleonora.", alibi: "Estava no meu consultório." },
+                "Sophia (A Sócia)": { retrato: "https://placehold.co/200x200/5a4b40/ffffff?text=Sophia", descricaoConexao: "A sócia de negócios que Alistair levou à ruína.", motivo: "Vingança pela ruína da sua família.", alibi: "Estava na biblioteca a ler.", segredo: "Ela cria aves exóticas raras como hobby." },
+                "Alfredo (O Mordomo)": { retrato: "https://placehold.co/200x200/5a4b40/ffffff?text=Alfredo", descricaoConexao: "O mordomo leal, que sabe mais do que aparenta.", motivo: "Chantagem e proteção.", alibi: "Estava na sala de jantar a polir a prataria por volta das 22h." },
+                "Celeste (A Governanta)": { retrato: "https://placehold.co/200x200/5a4b40/ffffff?text=Celeste", descricaoConexao: "A governanta que encontrou o corpo e parece abalada.", motivo: "Vingança pessoal.", alibi: "Estava na cozinha a preparar o pequeno-almoço." }
             },
             dialogos: {
                 "Sophia (A Sócia)": [
@@ -203,19 +240,19 @@
                 ]
             },
             pistas: {
-                "Gravador Digital": { imagem: "gravador_digital.png", descricao: "Um pequeno gravador de áudio. A sua única gravação é um som agudo e curto." },
-                "Carta de Ameaça": { imagem: "bilhete.png", descricao: "Uma carta de um agiota ameaçando Júnior se ele não pagar as suas dívidas de jogo." },
-                "Pena Exótica": { imagem: "pena_exotica.png", descricao: "Uma pena iridescente, azul e verde. Parece pertencer a uma ave muito rara. A pista crucial." },
-                "Veneno de Serpente": { imagem: "veneno.png", descricao: "Um frasco de veneno de serpente encontrado no consultório do Dr. Arnaldo. Uma pista falsa?" },
-                "Álibi de Alfredo quebrado": { imagem: "festa.png", descricao: "A foto da festa prova que Alfredo mentiu sobre a hora em que estava a polir a prata." },
-                "Álibi de Júnior quebrado": { imagem: "bilhete.png", descricao: "Júnior confessou que mentiu sobre o seu álibi. Ele não estava no salão de jogos, mas sim a encontrar-se com agiotas." },
+                "Gravador Digital": { imagem: "https://placehold.co/400x300/3a2d21/ffffff?text=Gravador", descricao: "Um pequeno gravador de áudio. A sua única gravação é um som agudo e curto." },
+                "Carta de Ameaça": { imagem: "https://placehold.co/400x300/3a2d21/ffffff?text=Carta", descricao: "Uma carta de um agiota ameaçando Júnior se ele não pagar as suas dívidas de jogo." },
+                "Pena Exótica": { imagem: "https://placehold.co/400x300/3a2d21/ffffff?text=Pena", descricao: "Uma pena iridescente, azul e verde. Parece pertencer a uma ave muito rara. A pista crucial." },
+                "Veneno de Serpente": { imagem: "https://placehold.co/400x300/3a2d21/ffffff?text=Veneno", descricao: "Um frasco de veneno de serpente encontrado no consultório do Dr. Arnaldo. Uma pista falsa?" },
+                "Álibi de Alfredo quebrado": { imagem: "https://placehold.co/400x300/3a2d21/ffffff?text=Foto+Festa", descricao: "A foto da festa prova que Alfredo mentiu sobre a hora em que estava a polir a prata." },
+                "Álibi de Júnior quebrado": { imagem: "https://placehold.co/400x300/3a2d21/ffffff?text=Carta", descricao: "Júnior confessou que mentiu sobre o seu álibi. Ele não estava no salão de jogos, mas sim a encontrar-se com agiotas." },
                 "Nome 'Sophia'": { descricao: "A análise do áudio do gravador revelou uma mensagem ultrassónica. Decodificada, diz 'SOPHIA'." },
                 "Artigo de Jornal": { descricao: "Um antigo artigo de jornal detalha a ruína da família de Sophia causada por Alistair, mencionando a lenda do 'Fantasma do Natal'." },
-                "Chave Mestra": { imagem: "chave_mestra.png", descricao: "Uma antiga chave mestra ornamentada. Deve abrir qualquer porta na mansão." },
-                "Conexão da Pena": { imagem: "pena_exotica.png", descricao: "Celeste revelou que Sophia cria aves exóticas na sua fazenda, o que liga a Pena Exótica encontrada no escritório diretamente a ela." },
+                "Chave Mestra": { imagem: "https://placehold.co/400x300/3a2d21/ffffff?text=Chave", descricao: "Uma antiga chave mestra ornamentada. Deve abrir qualquer porta na mansão." },
+                "Conexão da Pena": { imagem: "https://placehold.co/400x300/3a2d21/ffffff?text=Pena", descricao: "Celeste revelou que Sophia cria aves exóticas na sua fazenda, o que liga a Pena Exótica encontrada no escritório diretamente a ela." },
                 "Alfredo viu Sophia": { descricao: "Alfredo testemunhou ter visto Sophia a sair do consultório do Dr. Arnaldo na noite do crime." },
                 "Sophia mencionou Eleonora": { descricao: "Sophia alega que foi ao consultório do médico a pedido de Eleonora para buscar um analgésico." },
-                "Álibi de Sophia quebrado": { imagem: "eleonora.png", descricao: "Eleonora desmentiu a história de Sophia sobre o analgésico, provando que Sophia mentiu sobre estar no consultório do Dr. Arnaldo." }
+                "Álibi de Sophia quebrado": { imagem: "https://placehold.co/400x300/3a2d21/ffffff?text=Eleonora", descricao: "Eleonora desmentiu a história de Sophia sobre o analgésico, provando que Sophia mentiu sobre estar no consultório do Dr. Arnaldo." }
             }
         };
 
@@ -223,6 +260,70 @@
         const gameWindow = document.getElementById('game-window');
         const modalContainer = document.getElementById('modal-container');
         const modalBody = document.getElementById('modal-body');
+
+        // --- CONTROLO DE MÚSICA DINÂMICO ---
+        const musicTracks = {
+            suspense: "https://cdn.pixabay.com/download/audio/2022/11/17/audio_8741381364.mp3", // Corredor, escritório, biblioteca
+            festa: "https://cdn.pixabay.com/download/audio/2022/01/21/audio_3212b4b048.mp3", // Salão
+            tensao: "https://cdn.pixabay.com/download/audio/2022/08/04/audio_34e6e06915.mp3" // Interrogatório
+        };
+        let currentTrack;
+        let isMusicPlaying = false;
+        let isAudioContextStarted = false;
+        const musicToggleButton = document.getElementById('music-toggle');
+        const musicOnIcon = document.getElementById('music-on-icon');
+        const musicOffIcon = document.getElementById('music-off-icon');
+
+        async function changeMusic(mood) {
+            if (!isAudioContextStarted) await Tone.start();
+
+            const trackUrl = musicTracks[mood];
+            if (currentTrack && currentTrack.buffer.url.includes(trackUrl)) {
+                if (isMusicPlaying && currentTrack.state !== 'started') {
+                    currentTrack.start();
+                }
+                return;
+            }
+
+            if (currentTrack) {
+                currentTrack.stop();
+                currentTrack.dispose();
+            }
+
+            currentTrack = new Tone.Player({
+                url: trackUrl,
+                loop: true,
+                fadeOut: 0.5,
+                fadeIn: 0.5,
+                volume: -12
+            }).toDestination();
+
+            await Tone.loaded();
+            if (isMusicPlaying) {
+                currentTrack.start();
+            }
+        }
+
+        musicToggleButton.addEventListener('click', async () => {
+            if (!isAudioContextStarted) {
+                await Tone.start();
+                isAudioContextStarted = true;
+                // Carrega a primeira música se ainda não tiver sido carregada
+                if (!currentTrack) await changeMusic('suspense');
+            }
+
+            if (isMusicPlaying) {
+                if (currentTrack) currentTrack.stop();
+                musicOnIcon.classList.remove('hidden');
+                musicOffIcon.classList.add('hidden');
+            } else {
+                if (currentTrack) currentTrack.start();
+                musicOnIcon.classList.add('hidden');
+                musicOffIcon.classList.remove('hidden');
+            }
+            isMusicPlaying = !isMusicPlaying;
+        });
+
 
         function initGame() {
             gameState = {
@@ -242,6 +343,7 @@
                     ultimaResposta: null
                 };
             });
+            changeMusic('suspense');
             render();
         }
 
@@ -264,8 +366,8 @@
                     <div id="escolha-personagem" class="hidden">
                         <p class="text-xl mb-4">Escolha o seu protagonista:</p>
                         <div class="flex flex-col md:flex-row justify-center gap-8">
-                            <div onclick="selecionarPersonagem('arthur')" class="character-card text-center p-4 rounded-lg"><img src="arthur.png" alt="O Detetive Arthur Hastings" class="w-48 h-48 mx-auto rounded-full object-cover border-4 border-gray-600"><h3 class="mt-4 text-2xl font-bold">Arthur Hastings</h3></div>
-                            <div onclick="selecionarPersonagem('jane')" class="character-card text-center p-4 rounded-lg"><img src="jane.png" alt="A Detetive Jane Marple" class="w-48 h-48 mx-auto rounded-full object-cover border-4 border-gray-600"><h3 class="mt-4 text-2xl font-bold">Jane Marple</h3></div>
+                            <div onclick="selecionarPersonagem('arthur')" class="character-card text-center p-4 rounded-lg"><img src="https://placehold.co/200x200/4A5568/ffffff?text=Arthur" alt="O Detetive Arthur Hastings" class="w-48 h-48 mx-auto rounded-full object-cover border-4 border-gray-600"><h3 class="mt-4 text-2xl font-bold">Arthur Hastings</h3></div>
+                            <div onclick="selecionarPersonagem('jane')" class="character-card text-center p-4 rounded-lg"><img src="https://placehold.co/200x200/4A5568/ffffff?text=Jane" alt="A Detetive Jane Marple" class="w-48 h-48 mx-auto rounded-full object-cover border-4 border-gray-600"><h3 class="mt-4 text-2xl font-bold">Jane Marple</h3></div>
                         </div>
                     </div>
                 </div>`;
@@ -279,27 +381,35 @@
         }
 
         function renderTelaFinal() {
-            const vitoria = gameState.vitoria;
             return `
                 <div class="text-center">
-                    <h2 class="text-5xl font-bold game-title pb-4">${vitoria ? "Caso Encerrado!" : "Fim de Jogo"}</h2>
-                    <img src="${vitoria ? 'vitoria_' : 'derrota_'}${gameState.protagonista}.png" class="w-full md:w-1/2 mx-auto my-6 rounded-lg shadow-lg">
-                    <p class="text-xl">${vitoria ? "Brilhante! Você juntou as pistas certas. Sophia foi desmascarada." : `Enquanto você acusava a pessoa errada, o verdadeiro assassino preparava a sua armadilha final. Você é a última vítima.`}</p>
+                    <h2 class="text-5xl font-bold game-title pb-4">${gameState.vitoria ? "Caso Encerrado!" : "Fim de Jogo"}</h2>
+                    <img src="https://placehold.co/600x400/${gameState.vitoria ? '48bb78' : 'e53e3e'}/ffffff?text=${gameState.vitoria ? 'Vitoria' : 'Derrota'}" class="w-full md:w-1/2 mx-auto my-6 rounded-lg shadow-lg">
+                    <p class="text-xl">${gameState.vitoria ? "Brilhante! Você juntou as pistas certas. Sophia foi desmascarada." : `Enquanto você acusava a pessoa errada, o verdadeiro assassino preparava a sua armadilha final. Você é a última vítima.`}</p>
                     <button onclick="initGame()" class="mt-6 btn-principal text-white font-bold py-3 px-6 rounded text-lg">Jogar Novamente</button>
                 </div>`;
         }
 
         function renderCena() {
+            const imagensCena = {
+                corredor: 'https://placehold.co/800x600/2d3748/718096?text=Corredor',
+                escritorio: 'https://placehold.co/800x600/2d3748/718096?text=Escritorio',
+                salao: 'https://placehold.co/800x600/2d3748/718096?text=Salao',
+                biblioteca: 'https://placehold.co/800x600/2d3748/718096?text=Biblioteca'
+            };
+
             switch (gameState.cenaAtual) {
                 case 'corredor':
+                    changeMusic('suspense');
                     return `
                         <h1 class="text-4xl font-bold mb-4 text-center scene-title pb-4 border-b">Corredor do Segundo Andar</h1>
                         <p class="mb-4">A manhã de Natal começa com um grito. Você corre para o corredor e encontra a governanta, Celeste, em pânico em frente à porta do escritório de Alistair. A porta está trancada por dentro.</p>
-                        <img src="corredor.png" alt="Porta do escritório" class="rounded-md w-full">
+                        <img src="${imagensCena.corredor}" alt="Porta do escritório" class="rounded-md w-full">
                         <p class="text-xl font-bold text-yellow-400 mt-6 text-center">Dia ${gameState.dia}: ${gameState.objetivo}</p>
                         <button onclick="carregarCena('salao')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">Ir para o Salão Principal e falar com os outros</button>
                     `;
                 case 'escritorio':
+                    changeMusic('suspense');
                     let pistasEscritorio = `<div onclick="investigar('Gravador Digital')" class="clickable-area" style="top: 80%; left: 60%;"></div>`;
                     if (gameState.sophiaMencionouCarta && !gameState.pistas.has('Carta de Ameaça')) {
                         pistasEscritorio += `<div onclick="investigar('Carta de Ameaça')" class="clickable-area" style="top: 90%; left: 25%;"></div>`;
@@ -308,12 +418,13 @@
                         <h1 class="text-4xl font-bold mb-4 text-center scene-title pb-4 border-b">Cena do Crime: O Escritório</h1>
                         <p class="mb-4">O corpo de Alistair está na poltrona. Não há sinais de luta, apenas uma pequena marca no pescoço. Passe o rato sobre a imagem para encontrar pistas.</p>
                         <div class="relative">
-                            <img src="escritorio.png" alt="Cena do crime" class="rounded-md w-full">
+                            <img src="${imagensCena.escritorio}" alt="Cena do crime" class="rounded-md w-full">
                             ${pistasEscritorio}
                         </div>
                         <button onclick="carregarCena('salao')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">Ir para o Salão Principal</button>
                     `;
                 case 'salao':
+                    changeMusic('festa');
                     let salaoDesc = "Os suspeitos estão reunidos aqui, tensos.";
                     if (!gameState.escritorioTrancado) {
                         salaoDesc += " Consulte os dossiês no seu caderno para iniciar um interrogatório.";
@@ -328,7 +439,7 @@
                         <h1 class="text-4xl font-bold mb-4 text-center scene-title pb-4 border-b">Salão Principal</h1>
                         <p class="mb-4">${salaoDesc}</p>
                         <div class="relative">
-                            <img src="festa.png" alt="Salão da festa" class="rounded-md w-full" id="foto-festa">
+                            <img src="${imagensCena.salao}" alt="Salão da festa" class="rounded-md w-full" id="foto-festa">
                             ${clickableKeyArea}
                         </div>
                          <button onclick="analisarFotoFesta()" class="mt-4 w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded ${gameState.dia < 2 ? 'disabled' : ''}" ${gameState.dia < 2 ? 'disabled' : ''}>Analisar Foto da Festa</button>
@@ -336,14 +447,18 @@
                          <button onclick="carregarCena('biblioteca')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">Ir para a Biblioteca</button>
                     `;
                 case 'biblioteca':
-                    let pistasBiblioteca = `<button onclick="investigar('Artigo de Jornal')" class="mt-4 w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded">Investigar Jornais</button>`;
+                    changeMusic('suspense');
+                    let pistasBiblioteca = '';
                     if (gameState.alfredoMencionouSophia) {
                         pistasBiblioteca += `<button onclick="investigar('Pena Exótica')" class="mt-4 w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded">Investigar o xale de Sophia</button>`;
                     }
                     return `
                         <h1 class="text-4xl font-bold mb-4 text-center scene-title pb-4 border-b">Biblioteca</h1>
                         <p class="mb-4">Uma sala silenciosa e cheia de livros antigos. Você nota uma coleção de jornais antigos numa mesa de canto, e o xale de Sophia esquecido numa poltrona.</p>
-                        <img src="biblioteca.png" alt="Biblioteca da mansão" class="rounded-md w-full opacity-60">
+                        <div class="relative">
+                            <img src="${imagensCena.biblioteca}" alt="Biblioteca da mansão" class="rounded-md w-full">
+                            <div onclick="investigar('Artigo de Jornal')" class="clickable-area" style="top: 85%; left: 70%;"></div>
+                        </div>
                         ${pistasBiblioteca}
                         <button onclick="carregarCena('salao')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">Voltar ao Salão</button>
                     `;
@@ -355,7 +470,7 @@
             if (gameState.pistas.size === 0) {
                 pistasHTML = `<li class="opacity-50">Nenhuma pista ainda...</li>`;
             } else {
-                const pistasOrdenadas = Array.from(gameState.pistas).filter(p => !storyData.pistas[p].descricao.includes("testemunhou") && !storyData.pistas[p].descricao.includes("alega"));
+                const pistasOrdenadas = Array.from(gameState.pistas).filter(p => storyData.pistas[p] && !storyData.pistas[p].descricao.includes("testemunhou") && !storyData.pistas[p].descricao.includes("alega"));
                 pistasOrdenadas.forEach(pista => {
                     pistasHTML += `<li class="cursor-pointer hover:text-yellow-700" onclick="mostrarPista('${pista}')">${pista}</li>`;
                 });
@@ -402,7 +517,9 @@
             if (!el) return;
             function escrever() {
                 if (i < texto.length) { el.innerHTML += texto.charAt(i); i++; setTimeout(escrever, 40); }
-                else { document.getElementById('escolha-personagem').classList.remove('hidden'); }
+                else {
+                    document.getElementById('escolha-personagem').classList.remove('hidden');
+                }
             }
             escrever();
         }
@@ -461,9 +578,10 @@
         }
 
         function renderInterrogatorioNoModal(suspeitoId) {
+            changeMusic('tensao');
             const suspeito = storyData.suspeitos[suspeitoId];
             let perguntasHTML = '';
-            const dialogosDisponiveis = storyData.dialogos[suspeitoId] || [{ pergunta: "Qual o seu álibi?", resposta: `"${suspeito.alibi}"` }];
+            const dialogosDisponiveis = storyData.dialogos[suspeitoId] || [{ pergunta: "Qual o seu álibi?", resposta: `"${storyData.suspeitos[suspeitoId].alibi}"` }];
 
             dialogosDisponiveis.forEach((dialogo, index) => {
                 const jaPerguntado = gameState.interrogatorios[suspeitoId].perguntasFeitas.has(index);
@@ -496,7 +614,10 @@
             modalBody.innerHTML = interrogatorioHTML;
         }
 
-        function fecharModal() { modalContainer.style.display = 'none'; }
+        function fecharModal() {
+            modalContainer.style.display = 'none';
+            changeMusic('festa'); // Volta para a música do salão ao fechar o modal de interrogatório
+        }
 
         function fazerPerguntaNoModal(suspeitoId, index) {
             const dialogos = storyData.dialogos[suspeitoId] || [{ pergunta: "Qual o seu álibi?", resposta: `"${storyData.suspeitos[suspeitoId].alibi}"` }];
@@ -514,7 +635,6 @@
                 } else if (dialogo.revelaPista === "Veneno de Serpente") {
                     mostrarPista("Veneno de Serpente");
                     proximoObjetivo("Pergunte a Alfredo se ele viu algo perto do consultório.");
-                    render();
                     return;
                 } else if (dialogo.revelaPista === "Conexão da Pena") {
                     alert("Pista crucial encontrada! Celeste conectou a pena a Sophia.");
@@ -527,7 +647,6 @@
                 }
             }
 
-            // Lógica para avançar o objetivo após confrontar Alfredo sobre a foto
             if (suspeitoId === 'Alfredo (O Mordomo)' && dialogo.pergunta.includes('foto da festa')) {
                 if (!gameState.pistas.has("Álibi de Sophia quebrado")) {
                     proximoObjetivo("Investigue a tentativa de Sophia de incriminar o Dr. Arnaldo.");
@@ -567,13 +686,10 @@
 
         function mostrarPista(nomePista) {
             const pista = storyData.pistas[nomePista];
-            if (!pista) {
-                console.error("Tentativa de mostrar pista inexistente:", nomePista);
-                return;
-            }
+            if (!pista) { return; }
             const isLogicPista = pista.descricao.includes("testemunhou") || pista.descricao.includes("alega");
 
-            if (isLogicPista) return; // Não mostra pistas de lógica interna no modal
+            if (isLogicPista) return;
 
             modalBody.innerHTML = `
                 <h2 class="text-3xl text-center caderno-titulo pb-2">${nomePista}</h2>
@@ -616,9 +732,8 @@
 
         let audioIniciado = false;
         async function iniciarAudio() {
-            if (audioIniciado) return;
+            if (audioIniciado || !isAudioContextStarted) return;
             try {
-                await Tone.start();
                 const audioPlayer = document.getElementById('audio-pista');
                 const synth = new Tone.Synth().toDestination();
                 const recorder = new Tone.Recorder();
