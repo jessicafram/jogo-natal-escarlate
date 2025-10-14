@@ -276,12 +276,16 @@
 
         async function initAudioContext() {
             if (isAudioContextStarted) return;
-            await Tone.start();
-            isAudioContextStarted = true;
-            console.log("Audio Context Started.");
-            // Se o utilizador já queria música, começa a tocar agora
-            if (isMusicPlaying) {
-                await changeMusic(gameState.cenaAtual.includes('interrogatorio') ? 'tensao' : (gameState.cenaAtual === 'salao' ? 'festa' : 'suspense'));
+            try {
+                await Tone.start();
+                isAudioContextStarted = true;
+                console.log("Audio Context Started.");
+                if (isMusicPlaying) {
+                    const initialMood = gameState.cenaAtual ? (gameState.cenaAtual.includes('interrogatorio') ? 'tensao' : (gameState.cenaAtual === 'salao' ? 'festa' : 'suspense')) : 'suspense';
+                    await changeMusic(initialMood);
+                }
+            } catch (e) {
+                console.error("Could not start audio context:", e);
             }
         }
         document.body.addEventListener('click', initAudioContext, { once: true });
@@ -318,9 +322,11 @@
         }
 
         musicToggleButton.addEventListener('click', () => {
+            isMusicPlaying = !isMusicPlaying;
+
             if (!isAudioContextStarted) {
-                // Apenas muda o estado visual; o contexto de áudio será iniciado no primeiro clique em qualquer lugar
-                isMusicPlaying = !isMusicPlaying; // Pré-define o estado desejado
+                // Se o contexto ainda não iniciou, apenas atualiza o ícone.
+                // O som começará no primeiro clique em qualquer lugar do corpo da página.
                 if (isMusicPlaying) {
                     musicOnIcon.classList.add('hidden');
                     musicOffIcon.classList.remove('hidden');
@@ -332,15 +338,14 @@
             }
 
             if (isMusicPlaying) {
-                if (currentTrack) currentTrack.stop();
-                musicOnIcon.classList.remove('hidden');
-                musicOffIcon.classList.add('hidden');
-            } else {
                 if (currentTrack) currentTrack.start();
                 musicOnIcon.classList.add('hidden');
                 musicOffIcon.classList.remove('hidden');
+            } else {
+                if (currentTrack) currentTrack.stop();
+                musicOnIcon.classList.remove('hidden');
+                musicOffIcon.classList.add('hidden');
             }
-            isMusicPlaying = !isMusicPlaying;
         });
 
 
@@ -404,7 +409,7 @@
             return `
                 <div class="text-center">
                     <h2 class="text-5xl font-bold game-title pb-4">${vitoria ? "Caso Encerrado!" : "Fim de Jogo"}</h2>
-                    <img src="${vitoria ? 'vitoria_' : 'derrota_'}${gameState.protagonista}.png" class="w-full md:w-1/2 mx-auto my-6 rounded-lg shadow-lg">
+                    <img src="${vitoria ? 'vitoria' : 'derrota'}.png" class="w-full md:w-1/2 mx-auto my-6 rounded-lg shadow-lg">
                     <p class="text-xl">${vitoria ? "Brilhante! Você juntou as pistas certas. Sophia foi desmascarada." : `Enquanto você acusava a pessoa errada, o verdadeiro assassino preparava a sua armadilha final. Você é a última vítima.`}</p>
                     <button onclick="initGame()" class="mt-6 btn-principal text-white font-bold py-3 px-6 rounded text-lg">Jogar Novamente</button>
                 </div>`;
@@ -711,7 +716,10 @@
 
         function mostrarPista(nomePista) {
             const pista = storyData.pistas[nomePista];
-            if (!pista) { return; }
+            if (!pista) {
+                console.error("Tentativa de mostrar pista inexistente:", nomePista);
+                return;
+            }
             const isLogicPista = pista.descricao.includes("testemunhou") || pista.descricao.includes("alega");
 
             if (isLogicPista) return;
