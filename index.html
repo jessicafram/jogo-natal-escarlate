@@ -176,7 +176,8 @@
             dialogos: {
                 "Sophia (A Sócia)": [
                     { pergunta: "Onde a senhora estava na noite do crime?", resposta: "Sophia: 'Como já disse, na biblioteca. A leitura acalma a alma.'" },
-                    { pergunta: "Encontrei este gravador com o seu nome no escritório.", resposta: "Sophia: 'Ah, o meu gravador... Alistair pediu-mo emprestado. Se quer saber de problemas, fale com o filho dele, Júnior. Vi uma carta com ar ameaçador na gaveta da escrivaninha dele.'", requerPista: "Nome 'Sophia'", acao: (estado) => estado.sophiaMencionouCarta = true }
+                    { pergunta: "Encontrei este gravador com o seu nome no escritório.", resposta: "Sophia: 'Ah, o meu gravador... Alistair pediu-mo emprestado. Se quer saber de problemas, fale com o filho dele, Júnior. Vi uma carta com ar ameaçador na gaveta da escrivaninha dele.'", requerPista: "Nome 'Sophia'", acao: (estado) => estado.sophiaMencionouCarta = true },
+                    { pergunta: "Alfredo viu-a a sair do consultório do médico. O que fazia lá?", resposta: "Sophia: 'Que absurdo! Fui apenas buscar um analgésico que a pobre Eleonora me pediu. Ela estava com uma enxaqueca terrível.'", requerPista: "Alfredo viu Sophia", acao: (estado) => estado.sophiaMencionouEleonora = true }
                 ],
                 "Júnior (O Filho)": [
                     { pergunta: "Onde você estava na noite do crime?", resposta: "Júnior: 'Eu estava no salão de jogos a beber sozinho. Fiquei lá até de madrugada.'" },
@@ -185,11 +186,20 @@
                 "Alfredo (O Mordomo)": [
                     { pergunta: "Qual é o seu álibi?", resposta: "Alfredo: 'Eu estava na sala de jantar a polir a prataria, por volta das 22h.'" },
                     { pergunta: "Júnior disse que o viu a rondar o corredor. O que me diz?", resposta: "Alfredo: 'O menino Júnior tem a língua solta... Eu apenas estava a verificar as portas. Mas já que insiste, eu vi a D. Sophia a sair da biblioteca muito tarde. Ela parecia esconder algo sob o xale. Tinha uma cor... estranha, iridescente.'", requerPista: "Álibi de Júnior quebrado", acao: (estado) => estado.alfredoMencionouSophia = true },
-                    { pergunta: "A foto da festa mostra que já passava das 23h. Onde você realmente estava?", resposta: "Alfredo: 'Fui descoberto... Eu não estava a polir a prata. Eu estava com a menina Beatriz.'", requerPista: "Álibi de Alfredo quebrado" }
+                    { pergunta: "A foto da festa mostra que já passava das 23h. Onde você realmente estava?", resposta: "Alfredo: 'Fui descoberto... Eu não estava a polir a prata. Eu estava com a menina Beatriz.'", requerPista: "Álibi de Alfredo quebrado" },
+                    { pergunta: "Você viu mais alguma coisa suspeita?", resposta: "Alfredo: 'Agora que o senhor fala... Vi a D. Sophia a sair sorrateiramente do consultório do Dr. Arnaldo. Achei estranho...'", requerPista: "Veneno de Serpente", revelaPista: "Alfredo viu Sophia" }
                 ],
                 "Dr. Arnaldo (O Médico)": [
                     { pergunta: "Onde o senhor estava?", resposta: "Dr. Arnaldo: 'No meu consultório. Apenas saí para levar um analgésico a Eleonora.'" },
                     { pergunta: "Posso inspecionar o seu consultório?", resposta: "Dr. Arnaldo: 'Claro, não tenho nada a esconder.'", revelaPista: "Veneno de Serpente" }
+                ],
+                "Celeste (A Governanta)": [
+                    { pergunta: "Onde a senhora estava na hora do crime?", resposta: "Celeste: 'Na cozinha, a preparar o pequeno-almoço para a manhã de Natal. Uma tragédia, uma tragédia...'" },
+                    { pergunta: "Esta pena exótica parece-lhe familiar?", resposta: "Celeste: 'Oh, sim! Sem querer fazer intriga, mas a Dona Sophia tem uma fazenda no campo onde cria aves exóticas. Já a vi com penas muito parecidas nos seus chapéus.'", requerPista: "Pena Exótica", revelaPista: "Conexão da Pena" }
+                ],
+                "Eleonora (A Viúva)": [
+                    { pergunta: "Onde a senhora estava na noite do crime?", resposta: "Eleonora: 'No meu quarto, com uma terrível dor de cabeça. O Dr. Arnaldo até me trouxe um analgésico.'" },
+                    { pergunta: "A Sophia disse que foi buscar um analgésico para si. É verdade?", resposta: "Eleonora: 'O quê? Não! Eu não pedi nada à Sophia. O Dr. Arnaldo já me tinha ajudado. Por que é que ela diria uma coisa dessas?'", requerPista: "Sophia mencionou Eleonora", revelaPista: "Álibi de Sophia quebrado" }
                 ]
             },
             pistas: {
@@ -200,7 +210,11 @@
                 "Álibi de Alfredo quebrado": { imagem: "festa.png", descricao: "A foto da festa prova que Alfredo mentiu sobre a hora em que estava a polir a prata." },
                 "Nome 'Sophia'": { descricao: "A análise do áudio do gravador revelou uma mensagem ultrassónica. Decodificada, diz 'SOPHIA'." },
                 "Artigo de Jornal": { descricao: "Um antigo artigo de jornal detalha a ruína da família de Sophia causada por Alistair, mencionando a lenda do 'Fantasma do Natal'." },
-                "Chave Mestra": { imagem: "chave_mestra.png", descricao: "Uma antiga chave mestra ornamentada. Deve abrir qualquer porta na mansão." }
+                "Chave Mestra": { imagem: "chave_mestra.png", descricao: "Uma antiga chave mestra ornamentada. Deve abrir qualquer porta na mansão." },
+                "Conexão da Pena": { imagem: "pena_exotica.png", descricao: "Celeste revelou que Sophia cria aves exóticas na sua fazenda, o que liga a Pena Exótica encontrada no escritório diretamente a ela." },
+                "Alfredo viu Sophia": { descricao: "Alfredo testemunhou ter visto Sophia a sair do consultório do Dr. Arnaldo na noite do crime." },
+                "Sophia mencionou Eleonora": { descricao: "Sophia alega que foi ao consultório do médico a pedido de Eleonora para buscar um analgésico." },
+                "Álibi de Sophia quebrado": { imagem: "eleonora.png", descricao: "Eleonora desmentiu a história de Sophia sobre o analgésico, provando que Sophia mentiu sobre estar no consultório do Dr. Arnaldo." }
             }
         };
 
@@ -217,7 +231,8 @@
                 cenaAtual: 'corredor', pistas: new Set(), interrogatorios: {},
                 escritorioTrancado: true,
                 sophiaMencionouCarta: false,
-                alfredoMencionouSophia: false
+                alfredoMencionouSophia: false,
+                sophiaMencionouEleonora: false
             };
             Object.keys(storyData.suspeitos).forEach(id => {
                 gameState.interrogatorios[id] = {
@@ -285,11 +300,6 @@
                     `;
                 case 'escritorio':
                     let pistasEscritorio = `<div onclick="investigar('Gravador Digital')" class="clickable-area" style="top: 80%; left: 60%;"></div>`;
-                    if (gameState.pistas.has('Carta de Ameaça')) {
-                        // This assumes the letter is only clickable after Sophia mentions it,
-                        // but the logic now allows finding it if the flag is set.
-                        // The clickable area will now appear correctly.
-                    }
                     if (gameState.sophiaMencionouCarta && !gameState.pistas.has('Carta de Ameaça')) {
                         pistasEscritorio += `<div onclick="investigar('Carta de Ameaça')" class="clickable-area" style="top: 90%; left: 25%;"></div>`;
                     }
@@ -344,7 +354,8 @@
             if (gameState.pistas.size === 0) {
                 pistasHTML = `<li class="opacity-50">Nenhuma pista ainda...</li>`;
             } else {
-                gameState.pistas.forEach(pista => {
+                const pistasOrdenadas = Array.from(gameState.pistas).filter(p => !storyData.pistas[p].descricao.includes("testemunhou") && !storyData.pistas[p].descricao.includes("alega"));
+                pistasOrdenadas.forEach(pista => {
                     pistasHTML += `<li class="cursor-pointer hover:text-yellow-700" onclick="mostrarPista('${pista}')">${pista}</li>`;
                 });
             }
@@ -418,7 +429,7 @@
             } else if (nomePista === 'Carta de Ameaça') {
                 proximoObjetivo("Confronte Júnior sobre a carta de ameaça.");
             } else if (nomePista === 'Pena Exótica') {
-                proximoObjetivo("Conecte a Pena Exótica a um suspeito.");
+                proximoObjetivo("Descubra a origem da pena exótica.");
             }
 
             mostrarPista(nomePista);
@@ -500,18 +511,32 @@
                 if (dialogo.revelaPista === "Álibi de Júnior quebrado") {
                     proximoObjetivo("Interrogue Alfredo sobre o que ele viu.");
                 } else if (dialogo.revelaPista === "Veneno de Serpente") {
-                    alert("Pista adicionada: Veneno de Serpente. Você pode vê-la no seu caderno.");
+                    mostrarPista("Veneno de Serpente");
+                    proximoObjetivo("Pergunte a Alfredo se ele viu algo perto do consultório.")
+                } else if (dialogo.revelaPista === "Conexão da Pena") {
+                    alert("Pista crucial encontrada! Celeste conectou a pena a Sophia.");
+                    proximoObjetivo("Confronte Alfredo sobre a foto da festa para quebrar o seu álibi.")
+                } else if (dialogo.revelaPista === "Alfredo viu Sophia") {
+                    proximoObjetivo("Confronte Sophia sobre a sua visita ao consultório do médico.");
+                } else if (dialogo.revelaPista === "Álibi de Sophia quebrado") {
+                    alert("O álibi de Sophia foi quebrado! Ela mentiu para incriminar o médico.");
+                    proximoObjetivo("Você tem provas suficientes contra Sophia. Avance para o Dia 3.");
                 }
             }
 
             if (dialogo.acao && suspeitoId === "Sophia (A Sócia)") {
-                proximoObjetivo("Investigue a escrivaninha no escritório em busca de uma carta.");
+                if (gameState.sophiaMencionouEleonora) {
+                    adicionarPista("Sophia mencionou Eleonora");
+                    proximoObjetivo("Confirme a história de Sophia com Eleonora.");
+                } else {
+                    proximoObjetivo("Investigue a escrivaninha no escritório em busca de uma carta.");
+                }
             } else if (dialogo.acao && suspeitoId === "Alfredo (O Mordomo)") {
                 proximoObjetivo("Procure por algo incomum na biblioteca.");
             }
 
             renderInterrogatorioNoModal(suspeitoId);
-            render(); // Re-renderiza o caderno com a nova pista
+            render();
         }
 
         function adicionarPista(nomePista) {
@@ -520,7 +545,7 @@
             if (gameState.dia === 1 && gameState.pistas.has("Pena Exótica") && gameState.pistas.has("Carta de Ameaça") && gameState.pistas.has("Nome 'Sophia'")) {
                 gameState.dia = 2;
                 proximoObjetivo("Interrogue os suspeitos e quebre os seus álibis restantes.");
-            } else if (gameState.dia === 2 && gameState.pistas.has("Álibi de Alfredo quebrado") && gameState.pistas.has("Álibi de Júnior quebrado")) {
+            } else if (gameState.dia === 2 && gameState.pistas.has("Álibi de Alfredo quebrado") && gameState.pistas.has("Conexão da Pena") && gameState.pistas.has("Álibi de Sophia quebrado")) {
                 gameState.dia = 3;
                 proximoObjetivo("Você tem pistas suficientes. Faça a sua acusação final.");
             }
@@ -528,6 +553,10 @@
 
         function mostrarPista(nomePista) {
             const pista = storyData.pistas[nomePista];
+            const isLogicPista = pista.descricao.includes("testemunhou") || pista.descricao.includes("alega");
+
+            if (isLogicPista) return; // Não mostra pistas de lógica interna no modal
+
             modalBody.innerHTML = `
                 <h2 class="text-3xl text-center caderno-titulo pb-2">${nomePista}</h2>
                 ${pista.imagem ? `<img src="${pista.imagem}" alt="Imagem da pista" class="w-full my-4 rounded-md">` : ''}
