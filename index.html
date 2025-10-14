@@ -13,7 +13,7 @@
         rel="stylesheet">
     <style>
         body {
-            background-image: url('https://placehold.co/1920x1080/1a202c/2d3748?text=Imagem+da+Mansao');
+            background-image: url('mansao.png');
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -202,13 +202,13 @@
             arma: "Agulha com Veneno",
             motivo: "Vingança",
             suspeitos: {
-                "Eleonora (A Viúva)": { retrato: "https://placehold.co/200x200/5a4b40/ffffff?text=Retrato+de+Eleonora", descricaoConexao: "A ambiciosa esposa da vítima, com um segredo.", motivo: "Ganância e paixão.", alibi: "Passei a noite no meu quarto com dor de cabeça." },
-                "Júnior (O Filho)": { retrato: "https://placehold.co/200x200/5a4b40/ffffff?text=Retrato+de+Junior", descricaoConexao: "O filho da vítima, desesperado por dinheiro.", motivo: "Desespero financeiro.", alibi: "Estava no salão de jogos a beber sozinho." },
-                "Beatriz (A Filha)": { retrato: "https://placehold.co/200x200/5a4b40/ffffff?text=Retrato+de+Beatriz", descricaoConexao: "A filha devota, que faria tudo para proteger quem ama.", motivo: "Proteger o seu amor.", alibi: "Estava no meu quarto a ouvir música." },
-                "Dr. Arnaldo (O Médico)": { retrato: "https://placehold.co/200x200/5a4b40/ffffff?text=Retrato+de+Dr+Arnaldo", descricaoConexao: "O médico da família, apaixonado pela viúva.", motivo: "Paixão por Eleonora.", alibi: "Estava no meu consultório." },
-                "Sophia (A Sócia)": { retrato: "https://placehold.co/200x200/5a4b40/ffffff?text=Retrato+de+Sophia", descricaoConexao: "A sócia de negócios que Alistair levou à ruína.", motivo: "Vingança pela ruína da sua família.", alibi: "Estava na biblioteca a ler.", segredo: "Ela cria aves exóticas raras como hobby." },
-                "Alfredo (O Mordomo)": { retrato: "https://placehold.co/200x200/5a4b40/ffffff?text=Retrato+de+Alfredo", descricaoConexao: "O mordomo leal, que sabe mais do que aparenta.", motivo: "Chantagem e proteção.", alibi: "Estava na sala de jantar a polir a prataria por volta das 22h." },
-                "Celeste (A Governanta)": { retrato: "https://placehold.co/200x200/5a4b40/ffffff?text=Retrato+de+Celeste", descricaoConexao: "A governanta que encontrou o corpo e parece abalada.", motivo: "Vingança pessoal.", alibi: "Estava na cozinha a preparar o pequeno-almoço." }
+                "Eleonora (A Viúva)": { retrato: "eleonora.png", descricaoConexao: "A ambiciosa esposa da vítima, com um segredo.", motivo: "Ganância e paixão.", alibi: "Passei a noite no meu quarto com dor de cabeça." },
+                "Júnior (O Filho)": { retrato: "junior.png", descricaoConexao: "O filho da vítima, desesperado por dinheiro.", motivo: "Desespero financeiro.", alibi: "Estava no salão de jogos a beber sozinho." },
+                "Beatriz (A Filha)": { retrato: "beatriz.png", descricaoConexao: "A filha devota, que faria tudo para proteger quem ama.", motivo: "Proteger o seu amor.", alibi: "Estava no meu quarto a ouvir música." },
+                "Dr. Arnaldo (O Médico)": { retrato: "arnaldo.png", descricaoConexao: "O médico da família, apaixonado pela viúva.", motivo: "Paixão por Eleonora.", alibi: "Estava no meu consultório." },
+                "Sophia (A Sócia)": { retrato: "sophia.png", descricaoConexao: "A sócia de negócios que Alistair levou à ruína.", motivo: "Vingança pela ruína da sua família.", alibi: "Estava na biblioteca a ler.", segredo: "Ela cria aves exóticas raras como hobby." },
+                "Alfredo (O Mordomo)": { retrato: "alfredo.png", descricaoConexao: "O mordomo leal, que sabe mais do que aparenta.", motivo: "Chantagem e proteção.", alibi: "Estava na sala de jantar a polir a prataria por volta das 22h." },
+                "Celeste (A Governanta)": { retrato: "celeste.png", descricaoConexao: "A governanta que encontrou o corpo e parece abalada.", motivo: "Vingança pessoal.", alibi: "Estava na cozinha a preparar o pequeno-almoço." }
             },
             dialogos: {
                 "Sophia (A Sócia)": [
@@ -240,19 +240,19 @@
                 ]
             },
             pistas: {
-                "Gravador Digital": { imagem: "https://placehold.co/400x300/3a2d21/ffffff?text=Imagem+do+Gravador", descricao: "Um pequeno gravador de áudio. A sua única gravação é um som agudo e curto." },
-                "Carta de Ameaça": { imagem: "https://placehold.co/400x300/3a2d21/ffffff?text=Imagem+da+Carta", descricao: "Uma carta de um agiota ameaçando Júnior se ele não pagar as suas dívidas de jogo." },
-                "Pena Exótica": { imagem: "https://placehold.co/400x300/3a2d21/ffffff?text=Imagem+da+Pena", descricao: "Uma pena iridescente, azul e verde. Parece pertencer a uma ave muito rara. A pista crucial." },
-                "Veneno de Serpente": { imagem: "https://placehold.co/400x300/3a2d21/ffffff?text=Imagem+do+Veneno", descricao: "Um frasco de veneno de serpente encontrado no consultório do Dr. Arnaldo. Uma pista falsa?" },
-                "Álibi de Alfredo quebrado": { imagem: "https://placehold.co/400x300/3a2d21/ffffff?text=Imagem+da+Foto+da+Festa", descricao: "A foto da festa prova que Alfredo mentiu sobre a hora em que estava a polir a prata." },
-                "Álibi de Júnior quebrado": { imagem: "https://placehold.co/400x300/3a2d21/ffffff?text=Imagem+da+Carta", descricao: "Júnior confessou que mentiu sobre o seu álibi. Ele não estava no salão de jogos, mas sim a encontrar-se com agiotas." },
+                "Gravador Digital": { imagem: "gravador_digital.png", descricao: "Um pequeno gravador de áudio. A sua única gravação é um som agudo e curto." },
+                "Carta de Ameaça": { imagem: "bilhete.png", descricao: "Uma carta de um agiota ameaçando Júnior se ele não pagar as suas dívidas de jogo." },
+                "Pena Exótica": { imagem: "pena_exotica.png", descricao: "Uma pena iridescente, azul e verde. Parece pertencer a uma ave muito rara. A pista crucial." },
+                "Veneno de Serpente": { imagem: "veneno.png", descricao: "Um frasco de veneno de serpente encontrado no consultório do Dr. Arnaldo. Uma pista falsa?" },
+                "Álibi de Alfredo quebrado": { imagem: "festa.png", descricao: "A foto da festa prova que Alfredo mentiu sobre a hora em que estava a polir a prata." },
+                "Álibi de Júnior quebrado": { imagem: "bilhete.png", descricao: "Júnior confessou que mentiu sobre o seu álibi. Ele não estava no salão de jogos, mas sim a encontrar-se com agiotas." },
                 "Nome 'Sophia'": { descricao: "A análise do áudio do gravador revelou uma mensagem ultrassónica. Decodificada, diz 'SOPHIA'." },
                 "Artigo de Jornal": { descricao: "Um antigo artigo de jornal detalha a ruína da família de Sophia causada por Alistair, mencionando a lenda do 'Fantasma do Natal'." },
-                "Chave Mestra": { imagem: "https://placehold.co/400x300/3a2d21/ffffff?text=Imagem+da+Chave", descricao: "Uma antiga chave mestra ornamentada. Deve abrir qualquer porta na mansão." },
-                "Conexão da Pena": { imagem: "https://placehold.co/400x300/3a2d21/ffffff?text=Imagem+da+Pena", descricao: "Celeste revelou que Sophia cria aves exóticas na sua fazenda, o que liga a Pena Exótica encontrada no escritório diretamente a ela." },
+                "Chave Mestra": { imagem: "chave_mestra.png", descricao: "Uma antiga chave mestra ornamentada. Deve abrir qualquer porta na mansão." },
+                "Conexão da Pena": { imagem: "pena_exotica.png", descricao: "Celeste revelou que Sophia cria aves exóticas na sua fazenda, o que liga a Pena Exótica encontrada no escritório diretamente a ela." },
                 "Alfredo viu Sophia": { descricao: "Alfredo testemunhou ter visto Sophia a sair do consultório do Dr. Arnaldo na noite do crime." },
                 "Sophia mencionou Eleonora": { descricao: "Sophia alega que foi ao consultório do médico a pedido de Eleonora para buscar um analgésico." },
-                "Álibi de Sophia quebrado": { imagem: "https://placehold.co/400x300/3a2d21/ffffff?text=Retrato+de+Eleonora", descricao: "Eleonora desmentiu a história de Sophia sobre o analgésico, provando que Sophia mentiu sobre estar no consultório do Dr. Arnaldo." }
+                "Álibi de Sophia quebrado": { imagem: "eleonora.png", descricao: "Eleonora desmentiu a história de Sophia sobre o analgésico, provando que Sophia mentiu sobre estar no consultório do Dr. Arnaldo." }
             }
         };
 
@@ -273,6 +273,19 @@
         const musicToggleButton = document.getElementById('music-toggle');
         const musicOnIcon = document.getElementById('music-on-icon');
         const musicOffIcon = document.getElementById('music-off-icon');
+
+        async function initAudioContext() {
+            if (isAudioContextStarted) return;
+            await Tone.start();
+            isAudioContextStarted = true;
+            console.log("Audio Context Started.");
+            // Se o utilizador já queria música, começa a tocar agora
+            if (isMusicPlaying) {
+                await changeMusic(gameState.cenaAtual.includes('interrogatorio') ? 'tensao' : (gameState.cenaAtual === 'salao' ? 'festa' : 'suspense'));
+            }
+        }
+        document.body.addEventListener('click', initAudioContext, { once: true });
+
 
         async function changeMusic(mood) {
             if (!isAudioContextStarted) return;
@@ -304,11 +317,18 @@
             }
         }
 
-        musicToggleButton.addEventListener('click', async () => {
+        musicToggleButton.addEventListener('click', () => {
             if (!isAudioContextStarted) {
-                await Tone.start();
-                isAudioContextStarted = true;
-                await changeMusic('suspense'); // Carrega a música inicial
+                // Apenas muda o estado visual; o contexto de áudio será iniciado no primeiro clique em qualquer lugar
+                isMusicPlaying = !isMusicPlaying; // Pré-define o estado desejado
+                if (isMusicPlaying) {
+                    musicOnIcon.classList.add('hidden');
+                    musicOffIcon.classList.remove('hidden');
+                } else {
+                    musicOnIcon.classList.remove('hidden');
+                    musicOffIcon.classList.add('hidden');
+                }
+                return;
             }
 
             if (isMusicPlaying) {
@@ -365,8 +385,8 @@
                     <div id="escolha-personagem" class="hidden">
                         <p class="text-xl mb-4">Escolha o seu protagonista:</p>
                         <div class="flex flex-col md:flex-row justify-center gap-8">
-                            <div onclick="selecionarPersonagem('arthur')" class="character-card text-center p-4 rounded-lg"><img src="https://placehold.co/200x200/4A5568/ffffff?text=Detetive+Arthur" alt="O Detetive Arthur Hastings" class="w-48 h-48 mx-auto rounded-full object-cover border-4 border-gray-600"><h3 class="mt-4 text-2xl font-bold">Arthur Hastings</h3></div>
-                            <div onclick="selecionarPersonagem('jane')" class="character-card text-center p-4 rounded-lg"><img src="https://placehold.co/200x200/4A5568/ffffff?text=Detetive+Jane" alt="A Detetive Jane Marple" class="w-48 h-48 mx-auto rounded-full object-cover border-4 border-gray-600"><h3 class="mt-4 text-2xl font-bold">Jane Marple</h3></div>
+                            <div onclick="selecionarPersonagem('arthur')" class="character-card text-center p-4 rounded-lg"><img src="arthur.png" alt="O Detetive Arthur Hastings" class="w-48 h-48 mx-auto rounded-full object-cover border-4 border-gray-600"><h3 class="mt-4 text-2xl font-bold">Arthur Hastings</h3></div>
+                            <div onclick="selecionarPersonagem('jane')" class="character-card text-center p-4 rounded-lg"><img src="jane.png" alt="A Detetive Jane Marple" class="w-48 h-48 mx-auto rounded-full object-cover border-4 border-gray-600"><h3 class="mt-4 text-2xl font-bold">Jane Marple</h3></div>
                         </div>
                     </div>
                 </div>`;
@@ -380,21 +400,22 @@
         }
 
         function renderTelaFinal() {
+            const vitoria = gameState.vitoria;
             return `
                 <div class="text-center">
-                    <h2 class="text-5xl font-bold game-title pb-4">${gameState.vitoria ? "Caso Encerrado!" : "Fim de Jogo"}</h2>
-                    <img src="https://placehold.co/600x400/${gameState.vitoria ? '48bb78' : 'e53e3e'}/ffffff?text=${gameState.vitoria ? 'Vitoria' : 'Derrota'}" class="w-full md:w-1/2 mx-auto my-6 rounded-lg shadow-lg">
-                    <p class="text-xl">${gameState.vitoria ? "Brilhante! Você juntou as pistas certas. Sophia foi desmascarada." : `Enquanto você acusava a pessoa errada, o verdadeiro assassino preparava a sua armadilha final. Você é a última vítima.`}</p>
+                    <h2 class="text-5xl font-bold game-title pb-4">${vitoria ? "Caso Encerrado!" : "Fim de Jogo"}</h2>
+                    <img src="${vitoria ? 'vitoria_' : 'derrota_'}${gameState.protagonista}.png" class="w-full md:w-1/2 mx-auto my-6 rounded-lg shadow-lg">
+                    <p class="text-xl">${vitoria ? "Brilhante! Você juntou as pistas certas. Sophia foi desmascarada." : `Enquanto você acusava a pessoa errada, o verdadeiro assassino preparava a sua armadilha final. Você é a última vítima.`}</p>
                     <button onclick="initGame()" class="mt-6 btn-principal text-white font-bold py-3 px-6 rounded text-lg">Jogar Novamente</button>
                 </div>`;
         }
 
         function renderCena() {
             const imagensCena = {
-                corredor: 'https://placehold.co/800x600/2d3748/718096?text=Cena+do+Corredor',
-                escritorio: 'https://placehold.co/800x600/2d3748/718096?text=Cena+do+Escritorio',
-                salao: 'https://placehold.co/800x600/2d3748/718096?text=Cena+do+Salao',
-                biblioteca: 'https://placehold.co/800x600/2d3748/718096?text=Cena+da+Biblioteca'
+                corredor: 'corredor.png',
+                escritorio: 'escritorio.png',
+                salao: 'festa.png',
+                biblioteca: 'biblioteca.png'
             };
 
             switch (gameState.cenaAtual) {
@@ -523,14 +544,7 @@
             escrever();
         }
 
-        async function selecionarPersonagem(nome) {
-            if (!isAudioContextStarted) {
-                await Tone.start();
-                isAudioContextStarted = true;
-                if (isMusicPlaying) { // If user tried to play music before starting
-                    await changeMusic('suspense');
-                }
-            }
+        function selecionarPersonagem(nome) {
             gameState.protagonista = nome;
             gameState.currentScreen = 'jogo';
             render();
