@@ -513,7 +513,9 @@
                     proximoObjetivo("Interrogue Alfredo sobre o que ele viu.");
                 } else if (dialogo.revelaPista === "Veneno de Serpente") {
                     mostrarPista("Veneno de Serpente");
-                    proximoObjetivo("Pergunte a Alfredo se ele viu algo perto do consultório.")
+                    proximoObjetivo("Pergunte a Alfredo se ele viu algo perto do consultório.");
+                    render();
+                    return;
                 } else if (dialogo.revelaPista === "Conexão da Pena") {
                     alert("Pista crucial encontrada! Celeste conectou a pena a Sophia.");
                     proximoObjetivo("Confronte Alfredo sobre a foto da festa para quebrar o seu álibi.")
