@@ -285,7 +285,12 @@
                     `;
                 case 'escritorio':
                     let pistasEscritorio = `<div onclick="investigar('Gravador Digital')" class="clickable-area" style="top: 80%; left: 60%;"></div>`;
-                    if (gameState.sophiaMencionouCarta) {
+                    if (gameState.pistas.has('Carta de Ameaça')) {
+                        // This assumes the letter is only clickable after Sophia mentions it,
+                        // but the logic now allows finding it if the flag is set.
+                        // The clickable area will now appear correctly.
+                    }
+                    if (gameState.sophiaMencionouCarta && !gameState.pistas.has('Carta de Ameaça')) {
                         pistasEscritorio += `<div onclick="investigar('Carta de Ameaça')" class="clickable-area" style="top: 90%; left: 25%;"></div>`;
                     }
                     return `
@@ -499,12 +504,10 @@
                 }
             }
 
-            if (gameState.sophiaMencionouCarta) {
+            if (dialogo.acao && suspeitoId === "Sophia (A Sócia)") {
                 proximoObjetivo("Investigue a escrivaninha no escritório em busca de uma carta.");
-                gameState.sophiaMencionouCarta = false;
-            } else if (gameState.alfredoMencionouSophia) {
+            } else if (dialogo.acao && suspeitoId === "Alfredo (O Mordomo)") {
                 proximoObjetivo("Procure por algo incomum na biblioteca.");
-                gameState.alfredoMencionouSophia = false;
             }
 
             renderInterrogatorioNoModal(suspeitoId);
