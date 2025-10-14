@@ -208,6 +208,7 @@
                 "Pena Exótica": { imagem: "pena_exotica.png", descricao: "Uma pena iridescente, azul e verde. Parece pertencer a uma ave muito rara. A pista crucial." },
                 "Veneno de Serpente": { imagem: "veneno.png", descricao: "Um frasco de veneno de serpente encontrado no consultório do Dr. Arnaldo. Uma pista falsa?" },
                 "Álibi de Alfredo quebrado": { imagem: "festa.png", descricao: "A foto da festa prova que Alfredo mentiu sobre a hora em que estava a polir a prata." },
+                "Álibi de Júnior quebrado": { imagem: "bilhete.png", descricao: "Júnior confessou que mentiu sobre o seu álibi. Ele não estava no salão de jogos, mas sim a encontrar-se com agiotas." },
                 "Nome 'Sophia'": { descricao: "A análise do áudio do gravador revelou uma mensagem ultrassónica. Decodificada, diz 'SOPHIA'." },
                 "Artigo de Jornal": { descricao: "Um antigo artigo de jornal detalha a ruína da família de Sophia causada por Alistair, mencionando a lenda do 'Fantasma do Natal'." },
                 "Chave Mestra": { imagem: "chave_mestra.png", descricao: "Uma antiga chave mestra ornamentada. Deve abrir qualquer porta na mansão." },
@@ -553,6 +554,10 @@
 
         function mostrarPista(nomePista) {
             const pista = storyData.pistas[nomePista];
+            if (!pista) {
+                console.error("Tentativa de mostrar pista inexistente:", nomePista);
+                return;
+            }
             const isLogicPista = pista.descricao.includes("testemunhou") || pista.descricao.includes("alega");
 
             if (isLogicPista) return; // Não mostra pistas de lógica interna no modal
