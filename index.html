@@ -274,6 +274,13 @@
         const musicOnIcon = document.getElementById('music-on-icon');
         const musicOffIcon = document.getElementById('music-off-icon');
 
+        function getMoodForCurrentScene() {
+            if (!gameState.cenaAtual) return 'suspense';
+            if (gameState.cenaAtual.includes('interrogatorio')) return 'tensao';
+            if (gameState.cenaAtual === 'salao') return 'festa';
+            return 'suspense';
+        }
+
         async function initAudioContext() {
             if (isAudioContextStarted) return;
             try {
@@ -281,8 +288,8 @@
                 isAudioContextStarted = true;
                 console.log("Audio Context Started.");
                 if (isMusicPlaying) {
-                    const initialMood = gameState.cenaAtual ? (gameState.cenaAtual.includes('interrogatorio') ? 'tensao' : (gameState.cenaAtual === 'salao' ? 'festa' : 'suspense')) : 'suspense';
-                    await changeMusic(initialMood);
+                    const mood = getMoodForCurrentScene();
+                    await changeMusic(mood);
                 }
             } catch (e) {
                 console.error("Could not start audio context:", e);
@@ -290,12 +297,12 @@
         }
         document.body.addEventListener('click', initAudioContext, { once: true });
 
-
         async function changeMusic(mood) {
             if (!isAudioContextStarted) return;
 
             const trackUrl = musicTracks[mood];
-            if (currentTrack && currentTrack.buffer.url.includes(trackUrl)) {
+
+            if (currentTrack && currentTrack.buffer && currentTrack.buffer.url && currentTrack.buffer.url.includes(trackUrl)) {
                 if (isMusicPlaying && currentTrack.state !== 'started') {
                     currentTrack.start();
                 }
@@ -305,46 +312,49 @@
             if (currentTrack) {
                 currentTrack.stop();
                 currentTrack.dispose();
+                currentTrack = null;
             }
+
+            if (!trackUrl) return;
 
             currentTrack = new Tone.Player({
                 url: trackUrl,
                 loop: true,
-                fadeOut: 0.5,
-                fadeIn: 0.5,
-                volume: -12
+                fadeOut: 1,
+                fadeIn: 1,
+                volume: -12,
+                onload: () => {
+                    if (isMusicPlaying) currentTrack.start();
+                }
             }).toDestination();
-
-            await Tone.loaded();
-            if (isMusicPlaying) {
-                currentTrack.start();
-            }
         }
 
-        musicToggleButton.addEventListener('click', () => {
+        musicToggleButton.addEventListener('click', async (e) => {
+            e.stopPropagation();
             isMusicPlaying = !isMusicPlaying;
 
+            if (isMusicPlaying) {
+                musicOnIcon.classList.add('hidden');
+                musicOffIcon.classList.remove('hidden');
+            } else {
+                musicOnIcon.classList.remove('hidden');
+                musicOffIcon.classList.add('hidden');
+            }
+
             if (!isAudioContextStarted) {
-                // Se o contexto ainda não iniciou, apenas atualiza o ícone.
-                // O som começará no primeiro clique em qualquer lugar do corpo da página.
-                if (isMusicPlaying) {
-                    musicOnIcon.classList.add('hidden');
-                    musicOffIcon.classList.remove('hidden');
-                } else {
-                    musicOnIcon.classList.remove('hidden');
-                    musicOffIcon.classList.add('hidden');
-                }
+                await initAudioContext();
                 return;
             }
 
             if (isMusicPlaying) {
-                if (currentTrack) currentTrack.start();
-                musicOnIcon.classList.add('hidden');
-                musicOffIcon.classList.remove('hidden');
+                if (!currentTrack) {
+                    const mood = getMoodForCurrentScene();
+                    changeMusic(mood);
+                } else {
+                    currentTrack.start();
+                }
             } else {
                 if (currentTrack) currentTrack.stop();
-                musicOnIcon.classList.remove('hidden');
-                musicOffIcon.classList.add('hidden');
             }
         });
 
@@ -367,7 +377,6 @@
                     ultimaResposta: null
                 };
             });
-            if (isMusicPlaying) changeMusic('suspense');
             render();
         }
 
@@ -425,7 +434,7 @@
 
             switch (gameState.cenaAtual) {
                 case 'corredor':
-                    changeMusic('suspense');
+                    if (isMusicPlaying) changeMusic('suspense');
                     return `
                         <h1 class="text-4xl font-bold mb-4 text-center scene-title pb-4 border-b">Corredor do Segundo Andar</h1>
                         <p class="mb-4">A manhã de Natal começa com um grito. Você corre para o corredor e encontra a governanta, Celeste, em pânico em frente à porta do escritório de Alistair. A porta está trancada por dentro.</p>
@@ -434,7 +443,7 @@
                         <button onclick="carregarCena('salao')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">Ir para o Salão Principal e falar com os outros</button>
                     `;
                 case 'escritorio':
-                    changeMusic('suspense');
+                    if (isMusicPlaying) changeMusic('suspense');
                     let pistasEscritorio = `<div onclick="investigar('Gravador Digital')" class="clickable-area" style="top: 80%; left: 60%;"></div>`;
                     if (gameState.sophiaMencionouCarta && !gameState.pistas.has('Carta de Ameaça')) {
                         pistasEscritorio += `<div onclick="investigar('Carta de Ameaça')" class="clickable-area" style="top: 90%; left: 25%;"></div>`;
@@ -449,7 +458,7 @@
                         <button onclick="carregarCena('salao')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">Ir para o Salão Principal</button>
                     `;
                 case 'salao':
-                    changeMusic('festa');
+                    if (isMusicPlaying) changeMusic('festa');
                     let salaoDesc = "Os suspeitos estão reunidos aqui, tensos.";
                     if (!gameState.escritorioTrancado) {
                         salaoDesc += " Consulte os dossiês no seu caderno para iniciar um interrogatório.";
@@ -467,12 +476,12 @@
                             <img src="${imagensCena.salao}" alt="Salão da festa" class="rounded-md w-full" id="foto-festa">
                             ${clickableKeyArea}
                         </div>
-                         <button onclick="analisarFotoFesta()" class="mt-4 w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded ${gameState.dia < 2 ? 'disabled' : ''}" ${gameState.dia < 2 ? 'disabled' : ''}>Analisar Foto da Festa</button>
-                         <button onclick="carregarCena('escritorio')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded ${gameState.escritorioTrancado ? 'disabled' : ''}" ${gameState.escritorioTrancado ? 'disabled' : ''}>Ir para o Escritório</button>
-                         <button onclick="carregarCena('biblioteca')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">Ir para a Biblioteca</button>
+                            <button onclick="analisarFotoFesta()" class="mt-4 w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded ${gameState.dia < 2 ? 'disabled' : ''}" ${gameState.dia < 2 ? 'disabled' : ''}>Analisar Foto da Festa</button>
+                            <button onclick="carregarCena('escritorio')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded ${gameState.escritorioTrancado ? 'disabled' : ''}" ${gameState.escritorioTrancado ? 'disabled' : ''}>Ir para o Escritório</button>
+                            <button onclick="carregarCena('biblioteca')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">Ir para a Biblioteca</button>
                     `;
                 case 'biblioteca':
-                    changeMusic('suspense');
+                    if (isMusicPlaying) changeMusic('suspense');
                     let pistasBiblioteca = '';
                     if (gameState.alfredoMencionouSophia) {
                         pistasBiblioteca += `<button onclick="investigar('Pena Exótica')" class="mt-4 w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded">Investigar o xale de Sophia</button>`;
@@ -608,7 +617,7 @@
         }
 
         function renderInterrogatorioNoModal(suspeitoId) {
-            changeMusic('tensao');
+            if (isMusicPlaying) changeMusic('tensao');
             const suspeito = storyData.suspeitos[suspeitoId];
             let perguntasHTML = '';
             const dialogosDisponiveis = storyData.dialogos[suspeitoId] || [{ pergunta: "Qual o seu álibi?", resposta: `"${storyData.suspeitos[suspeitoId].alibi}"` }];
@@ -646,7 +655,7 @@
 
         function fecharModal() {
             modalContainer.style.display = 'none';
-            changeMusic('festa'); // Volta para a música do salão ao fechar o modal de interrogatório
+            if (isMusicPlaying) changeMusic('festa');
         }
 
         function fazerPerguntaNoModal(suspeitoId, index) {
