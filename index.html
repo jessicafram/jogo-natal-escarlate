@@ -13,6 +13,7 @@
         rel="stylesheet">
     <style>
         body {
+            /* Certifique-se de que a imagem 'mansao.png' está na mesma pasta */
             background-image: url('mansao.png');
             background-size: cover;
             background-position: center;
@@ -65,6 +66,7 @@
             color: #48bb78;
             /* Verde */
             font-weight: bold;
+            text-decoration: line-through;
         }
 
         .clickable-area {
@@ -75,8 +77,8 @@
             width: 40px;
             height: 40px;
             transform: translate(-50%, -50%);
-            background-color: rgba(255, 255, 224, 0.0);
-            /* Invisível por padrão */
+            /* Deixe levemente visível para debug se necessário, ou totalmente transparente */
+            background-color: rgba(255, 255, 224, 0.1);
         }
 
         .clickable-area:hover {
@@ -99,14 +101,17 @@
 
         .modal-content {
             background-color: #fdfaf3;
-            margin: 10% auto;
+            margin: 5% auto;
+            /* Um pouco mais alto */
             padding: 20px;
             border: 1px solid #c7bca1;
             width: 90%;
-            max-width: 500px;
+            max-width: 600px;
             color: #3a2d21;
             border-radius: 8px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .character-card {
@@ -163,12 +168,37 @@
             background-color: #2D3748;
             transform: scale(1.1);
         }
+
+        #start-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.95);
+            z-index: 200;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
     </style>
 </head>
 
 <body class="p-4 md:p-8 flex items-center justify-center min-h-screen">
 
-    <button id="music-toggle">
+    <!-- Overlay de Início para Garantir Áudio -->
+    <div id="start-overlay">
+        <h1 class="text-6xl font-bold mb-8 game-title text-red-600">O Natal Escarlate</h1>
+        <p class="mb-8 text-xl">Clique abaixo para iniciar a investigação e ativar o áudio.</p>
+        <button onclick="startGameContext()"
+            class="btn-principal text-white font-bold py-4 px-8 rounded text-2xl border border-red-800 hover:scale-105 transition-transform">
+            INICIAR JOGO
+        </button>
+    </div>
+
+    <button id="music-toggle" class="hidden">
         <svg id="music-on-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M9 18V5l12-2v13"></path>
@@ -183,32 +213,60 @@
         </svg>
     </button>
 
-    <div id="game-window" class="max-w-5xl w-full mx-auto p-6 rounded-lg container">
+    <div id="game-window" class="max-w-5xl w-full mx-auto p-6 rounded-lg container hidden">
+        <!-- O jogo renderiza aqui -->
     </div>
 
+    <!-- MODAIS (para Dossiês e Pistas) -->
     <div id="modal-container" class="modal">
-        <div class="modal-content">
+        <div class="modal-content relative">
             <span onclick="fecharModal()"
-                class="float-right text-3xl font-bold cursor-pointer hover:text-red-600">&times;</span>
+                class="absolute top-2 right-4 text-3xl font-bold cursor-pointer hover:text-red-600">&times;</span>
             <div id="modal-body"></div>
         </div>
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
     <script>
+        // --- CONFIGURAÇÃO DE IMAGENS (USE SEUS NOMES DE ARQUIVO AQUI) ---
+        // Certifique-se que estes arquivos estão no seu GitHub
+        const IMAGENS = {
+            mansao: "mansao.png",
+            corredor: "corredor.png",
+            escritorio: "escritorio.png",
+            salao: "festa.png",
+            biblioteca: "biblioteca.png",
+            eleonora: "eleonora.png",
+            junior: "junior.png",
+            beatriz: "beatriz.png",
+            arnaldo: "arnaldo.png",
+            sophia: "sophia.png",
+            alfredo: "alfredo.png",
+            celeste: "celeste.png",
+            arthur: "arthur.png",
+            jane: "jane.png",
+            gravador: "gravador_digital.png",
+            carta: "bilhete.png",
+            pena: "pena_exotica.png",
+            veneno: "veneno.png",
+            chave: "chave_mestra.png",
+            vitoria: "vitoria.png",
+            derrota: "derrota.png"
+        };
+
         // --- BASE DE DADOS DA HISTÓRIA ---
         const storyData = {
             assassino: "Sophia (A Sócia)",
             arma: "Agulha com Veneno",
             motivo: "Vingança",
             suspeitos: {
-                "Eleonora (A Viúva)": { retrato: "eleonora.png", descricaoConexao: "A ambiciosa esposa da vítima, com um segredo.", motivo: "Ganância e paixão.", alibi: "Passei a noite no meu quarto com dor de cabeça." },
-                "Júnior (O Filho)": { retrato: "junior.png", descricaoConexao: "O filho da vítima, desesperado por dinheiro.", motivo: "Desespero financeiro.", alibi: "Estava no salão de jogos a beber sozinho." },
-                "Beatriz (A Filha)": { retrato: "beatriz.png", descricaoConexao: "A filha devota, que faria tudo para proteger quem ama.", motivo: "Proteger o seu amor.", alibi: "Estava no meu quarto a ouvir música." },
-                "Dr. Arnaldo (O Médico)": { retrato: "arnaldo.png", descricaoConexao: "O médico da família, apaixonado pela viúva.", motivo: "Paixão por Eleonora.", alibi: "Estava no meu consultório." },
-                "Sophia (A Sócia)": { retrato: "sophia.png", descricaoConexao: "A sócia de negócios que Alistair levou à ruína.", motivo: "Vingança pela ruína da sua família.", alibi: "Estava na biblioteca a ler.", segredo: "Ela cria aves exóticas raras como hobby." },
-                "Alfredo (O Mordomo)": { retrato: "alfredo.png", descricaoConexao: "O mordomo leal, que sabe mais do que aparenta.", motivo: "Chantagem e proteção.", alibi: "Estava na sala de jantar a polir a prataria por volta das 22h." },
-                "Celeste (A Governanta)": { retrato: "celeste.png", descricaoConexao: "A governanta que encontrou o corpo e parece abalada.", motivo: "Vingança pessoal.", alibi: "Estava na cozinha a preparar o pequeno-almoço." }
+                "Eleonora (A Viúva)": { retrato: IMAGENS.eleonora, descricaoConexao: "A ambiciosa esposa da vítima, com um segredo.", motivo: "Ganância e paixão.", alibi: "Passei a noite no meu quarto com dor de cabeça." },
+                "Júnior (O Filho)": { retrato: IMAGENS.junior, descricaoConexao: "O filho da vítima, desesperado por dinheiro.", motivo: "Desespero financeiro.", alibi: "Estava no salão de jogos a beber sozinho." },
+                "Beatriz (A Filha)": { retrato: IMAGENS.beatriz, descricaoConexao: "A filha devota, que faria tudo para proteger quem ama.", motivo: "Proteger o seu amor.", alibi: "Estava no meu quarto a ouvir música." },
+                "Dr. Arnaldo (O Médico)": { retrato: IMAGENS.arnaldo, descricaoConexao: "O médico da família, apaixonado pela viúva.", motivo: "Paixão por Eleonora.", alibi: "Estava no meu consultório." },
+                "Sophia (A Sócia)": { retrato: IMAGENS.sophia, descricaoConexao: "A sócia de negócios que Alistair levou à ruína.", motivo: "Vingança pela ruína da sua família.", alibi: "Estava na biblioteca a ler.", segredo: "Ela cria aves exóticas raras como hobby." },
+                "Alfredo (O Mordomo)": { retrato: IMAGENS.alfredo, descricaoConexao: "O mordomo leal, que sabe mais do que aparenta.", motivo: "Chantagem e proteção.", alibi: "Estava na sala de jantar a polir a prataria por volta das 22h." },
+                "Celeste (A Governanta)": { retrato: IMAGENS.celeste, descricaoConexao: "A governanta que encontrou o corpo e parece abalada.", motivo: "Vingança pessoal.", alibi: "Estava na cozinha a preparar o pequeno-almoço." }
             },
             dialogos: {
                 "Sophia (A Sócia)": [
@@ -240,19 +298,19 @@
                 ]
             },
             pistas: {
-                "Gravador Digital": { imagem: "gravador_digital.png", descricao: "Um pequeno gravador de áudio. A sua única gravação é um som agudo e curto." },
-                "Carta de Ameaça": { imagem: "bilhete.png", descricao: "Uma carta de um agiota ameaçando Júnior se ele não pagar as suas dívidas de jogo." },
-                "Pena Exótica": { imagem: "pena_exotica.png", descricao: "Uma pena iridescente, azul e verde. Parece pertencer a uma ave muito rara. A pista crucial." },
-                "Veneno de Serpente": { imagem: "veneno.png", descricao: "Um frasco de veneno de serpente encontrado no consultório do Dr. Arnaldo. Uma pista falsa?" },
-                "Álibi de Alfredo quebrado": { imagem: "festa.png", descricao: "A foto da festa prova que Alfredo mentiu sobre a hora em que estava a polir a prata." },
-                "Álibi de Júnior quebrado": { imagem: "bilhete.png", descricao: "Júnior confessou que mentiu sobre o seu álibi. Ele não estava no salão de jogos, mas sim a encontrar-se com agiotas." },
+                "Gravador Digital": { imagem: IMAGENS.gravador, descricao: "Um pequeno gravador de áudio. A sua única gravação é um som agudo e curto." },
+                "Carta de Ameaça": { imagem: IMAGENS.carta, descricao: "Uma carta de um agiota ameaçando Júnior se ele não pagar as suas dívidas de jogo." },
+                "Pena Exótica": { imagem: IMAGENS.pena, descricao: "Uma pena iridescente, azul e verde. Parece pertencer a uma ave muito rara. A pista crucial." },
+                "Veneno de Serpente": { imagem: IMAGENS.veneno, descricao: "Um frasco de veneno de serpente encontrado no consultório do Dr. Arnaldo. Uma pista falsa?" },
+                "Álibi de Alfredo quebrado": { imagem: IMAGENS.salao, descricao: "A foto da festa prova que Alfredo mentiu sobre a hora em que estava a polir a prata." },
+                "Álibi de Júnior quebrado": { imagem: IMAGENS.carta, descricao: "Júnior confessou que mentiu sobre o seu álibi. Ele não estava no salão de jogos, mas sim a encontrar-se com agiotas." },
                 "Nome 'Sophia'": { descricao: "A análise do áudio do gravador revelou uma mensagem ultrassónica. Decodificada, diz 'SOPHIA'." },
                 "Artigo de Jornal": { descricao: "Um antigo artigo de jornal detalha a ruína da família de Sophia causada por Alistair, mencionando a lenda do 'Fantasma do Natal'." },
-                "Chave Mestra": { imagem: "chave_mestra.png", descricao: "Uma antiga chave mestra ornamentada. Deve abrir qualquer porta na mansão." },
-                "Conexão da Pena": { imagem: "pena_exotica.png", descricao: "Celeste revelou que Sophia cria aves exóticas na sua fazenda, o que liga a Pena Exótica encontrada no escritório diretamente a ela." },
+                "Chave Mestra": { imagem: IMAGENS.chave, descricao: "Uma antiga chave mestra ornamentada. Deve abrir qualquer porta na mansão." },
+                "Conexão da Pena": { imagem: IMAGENS.pena, descricao: "Celeste revelou que Sophia cria aves exóticas na sua fazenda, o que liga a Pena Exótica encontrada no escritório diretamente a ela." },
                 "Alfredo viu Sophia": { descricao: "Alfredo testemunhou ter visto Sophia a sair do consultório do Dr. Arnaldo na noite do crime." },
                 "Sophia mencionou Eleonora": { descricao: "Sophia alega que foi ao consultório do médico a pedido de Eleonora para buscar um analgésico." },
-                "Álibi de Sophia quebrado": { imagem: "eleonora.png", descricao: "Eleonora desmentiu a história de Sophia sobre o analgésico, provando que Sophia mentiu sobre estar no consultório do Dr. Arnaldo." }
+                "Álibi de Sophia quebrado": { imagem: IMAGENS.eleonora, descricao: "Eleonora desmentiu a história de Sophia sobre o analgésico, provando que Sophia mentiu sobre estar no consultório do Dr. Arnaldo." }
             }
         };
 
@@ -268,96 +326,83 @@
             tensao: "https://cdn.pixabay.com/download/audio/2022/08/04/audio_34e6e06915.mp3"
         };
         let currentTrack;
-        let isMusicPlaying = false;
+        let isMusicPlaying = true; // Começa true, mas só toca após Start
         let isAudioContextStarted = false;
         const musicToggleButton = document.getElementById('music-toggle');
         const musicOnIcon = document.getElementById('music-on-icon');
         const musicOffIcon = document.getElementById('music-off-icon');
 
-        function getMoodForCurrentScene() {
-            if (!gameState.cenaAtual) return 'suspense';
-            if (gameState.cenaAtual.includes('interrogatorio')) return 'tensao';
-            if (gameState.cenaAtual === 'salao') return 'festa';
-            return 'suspense';
-        }
+        async function startGameContext() {
+            document.getElementById('start-overlay').classList.add('hidden');
+            document.getElementById('game-window').classList.remove('hidden');
+            document.getElementById('music-toggle').classList.remove('hidden');
 
-        async function initAudioContext() {
-            if (isAudioContextStarted) return;
-            try {
-                await Tone.start();
-                isAudioContextStarted = true;
-                console.log("Audio Context Started.");
-                if (isMusicPlaying) {
-                    const mood = getMoodForCurrentScene();
-                    await changeMusic(mood);
+            if (!isAudioContextStarted) {
+                try {
+                    await Tone.start();
+                    isAudioContextStarted = true;
+                    await changeMusic('suspense');
+                    initGame();
+                } catch (e) {
+                    console.error("Erro ao iniciar áudio:", e);
+                    initGame(); // Inicia mesmo sem áudio se der erro
                 }
-            } catch (e) {
-                console.error("Could not start audio context:", e);
             }
         }
-        document.body.addEventListener('click', initAudioContext, { once: true });
 
         async function changeMusic(mood) {
-            if (!isAudioContextStarted) return;
+            if (!isAudioContextStarted || !isMusicPlaying) return;
 
             const trackUrl = musicTracks[mood];
 
-            if (currentTrack && currentTrack.buffer && currentTrack.buffer.url && currentTrack.buffer.url.includes(trackUrl)) {
-                if (isMusicPlaying && currentTrack.state !== 'started') {
-                    currentTrack.start();
-                }
+            // Se já estiver tocando a mesma música, não reinicia
+            if (currentTrack && currentTrack.loaded && currentTrack.buffer && currentTrack.buffer.url && currentTrack.buffer.url.includes(trackUrl)) {
+                if (currentTrack.state !== 'started') currentTrack.start();
                 return;
             }
 
             if (currentTrack) {
                 currentTrack.stop();
                 currentTrack.dispose();
-                currentTrack = null;
             }
 
-            if (!trackUrl) return;
+            try {
+                currentTrack = new Tone.Player({
+                    url: trackUrl,
+                    loop: true,
+                    fadeOut: 1,
+                    fadeIn: 1,
+                    volume: -12
+                }).toDestination();
 
-            currentTrack = new Tone.Player({
-                url: trackUrl,
-                loop: true,
-                fadeOut: 1,
-                fadeIn: 1,
-                volume: -12,
-                onload: () => {
-                    if (isMusicPlaying) currentTrack.start();
+                await Tone.loaded();
+                if (isMusicPlaying) {
+                    currentTrack.start();
                 }
-            }).toDestination();
+            } catch (e) {
+                console.error("Erro ao carregar música:", e);
+            }
         }
 
-        musicToggleButton.addEventListener('click', async (e) => {
-            e.stopPropagation();
+        musicToggleButton.addEventListener('click', () => {
             isMusicPlaying = !isMusicPlaying;
 
             if (isMusicPlaying) {
-                musicOnIcon.classList.add('hidden');
-                musicOffIcon.classList.remove('hidden');
-            } else {
                 musicOnIcon.classList.remove('hidden');
                 musicOffIcon.classList.add('hidden');
-            }
-
-            if (!isAudioContextStarted) {
-                await initAudioContext();
-                return;
-            }
-
-            if (isMusicPlaying) {
-                if (!currentTrack) {
-                    const mood = getMoodForCurrentScene();
+                if (currentTrack && isAudioContextStarted) currentTrack.start();
+                else if (isAudioContextStarted) {
+                    // Tenta tocar a música da cena atual se não houver track
+                    const mood = gameState.cenaAtual && gameState.cenaAtual.includes('interrogatorio') ? 'tensao' :
+                        (gameState.cenaAtual === 'salao' ? 'festa' : 'suspense');
                     changeMusic(mood);
-                } else {
-                    currentTrack.start();
                 }
             } else {
+                musicOnIcon.classList.add('hidden');
+                musicOffIcon.classList.remove('hidden');
                 if (currentTrack) currentTrack.stop();
             }
         });
-
 
         function initGame() {
             gameState = {
@@ -399,8 +444,8 @@
                     <div id="escolha-personagem" class="hidden">
                         <p class="text-xl mb-4">Escolha o seu protagonista:</p>
                         <div class="flex flex-col md:flex-row justify-center gap-8">
-                            <div onclick="selecionarPersonagem('arthur')" class="character-card text-center p-4 rounded-lg"><img src="arthur.png" alt="O Detetive Arthur Hastings" class="w-48 h-48 mx-auto rounded-full object-cover border-4 border-gray-600"><h3 class="mt-4 text-2xl font-bold">Arthur Hastings</h3></div>
-                            <div onclick="selecionarPersonagem('jane')" class="character-card text-center p-4 rounded-lg"><img src="jane.png" alt="A Detetive Jane Marple" class="w-48 h-48 mx-auto rounded-full object-cover border-4 border-gray-600"><h3 class="mt-4 text-2xl font-bold">Jane Marple</h3></div>
+                            <div onclick="selecionarPersonagem('arthur')" class="character-card text-center p-4 rounded-lg"><img src="${IMAGENS.arthur}" alt="O Detetive Arthur Hastings" class="w-48 h-48 mx-auto rounded-full object-cover border-4 border-gray-600"><h3 class="mt-4 text-2xl font-bold">Arthur Hastings</h3></div>
+                            <div onclick="selecionarPersonagem('jane')" class="character-card text-center p-4 rounded-lg"><img src="${IMAGENS.jane}" alt="A Detetive Jane Marple" class="w-48 h-48 mx-auto rounded-full object-cover border-4 border-gray-600"><h3 class="mt-4 text-2xl font-bold">Jane Marple</h3></div>
                         </div>
                     </div>
                 </div>`;
@@ -414,36 +459,29 @@
         }
 
         function renderTelaFinal() {
-            const vitoria = gameState.vitoria;
+            const imagemFinal = gameState.vitoria ? IMAGENS.vitoria : IMAGENS.derrota;
             return `
                 <div class="text-center">
-                    <h2 class="text-5xl font-bold game-title pb-4">${vitoria ? "Caso Encerrado!" : "Fim de Jogo"}</h2>
-                    <img src="${vitoria ? 'vitoria' : 'derrota'}.png" class="w-full md:w-1/2 mx-auto my-6 rounded-lg shadow-lg">
-                    <p class="text-xl">${vitoria ? "Brilhante! Você juntou as pistas certas. Sophia foi desmascarada." : `Enquanto você acusava a pessoa errada, o verdadeiro assassino preparava a sua armadilha final. Você é a última vítima.`}</p>
-                    <button onclick="initGame()" class="mt-6 btn-principal text-white font-bold py-3 px-6 rounded text-lg">Jogar Novamente</button>
+                    <h2 class="text-5xl font-bold game-title pb-4">${gameState.vitoria ? "Caso Encerrado!" : "Fim de Jogo"}</h2>
+                    <img src="${imagemFinal}" class="w-full md:w-1/2 mx-auto my-6 rounded-lg shadow-lg">
+                    <p class="text-xl">${gameState.vitoria ? "Brilhante! Você juntou as pistas certas. Sophia foi desmascarada." : `Enquanto você acusava a pessoa errada, o verdadeiro assassino preparava a sua armadilha final. Você é a última vítima.`}</p>
+                    <button onclick="location.reload()" class="mt-6 btn-principal text-white font-bold py-3 px-6 rounded text-lg">Jogar Novamente</button>
                 </div>`;
         }
 
         function renderCena() {
-            const imagensCena = {
-                corredor: 'corredor.png',
-                escritorio: 'escritorio.png',
-                salao: 'festa.png',
-                biblioteca: 'biblioteca.png'
-            };
-
             switch (gameState.cenaAtual) {
                 case 'corredor':
-                    if (isMusicPlaying) changeMusic('suspense');
+                    changeMusic('suspense');
                     return `
                         <h1 class="text-4xl font-bold mb-4 text-center scene-title pb-4 border-b">Corredor do Segundo Andar</h1>
                         <p class="mb-4">A manhã de Natal começa com um grito. Você corre para o corredor e encontra a governanta, Celeste, em pânico em frente à porta do escritório de Alistair. A porta está trancada por dentro.</p>
-                        <img src="${imagensCena.corredor}" alt="Porta do escritório" class="rounded-md w-full">
+                        <img src="${IMAGENS.corredor}" alt="Porta do escritório" class="rounded-md w-full">
                         <p class="text-xl font-bold text-yellow-400 mt-6 text-center">Dia ${gameState.dia}: ${gameState.objetivo}</p>
                         <button onclick="carregarCena('salao')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">Ir para o Salão Principal e falar com os outros</button>
                     `;
                 case 'escritorio':
-                    if (isMusicPlaying) changeMusic('suspense');
+                    changeMusic('suspense');
                     let pistasEscritorio = `<div onclick="investigar('Gravador Digital')" class="clickable-area" style="top: 80%; left: 60%;"></div>`;
                     if (gameState.sophiaMencionouCarta && !gameState.pistas.has('Carta de Ameaça')) {
                         pistasEscritorio += `<div onclick="investigar('Carta de Ameaça')" class="clickable-area" style="top: 90%; left: 25%;"></div>`;
@@ -452,13 +490,13 @@
                         <h1 class="text-4xl font-bold mb-4 text-center scene-title pb-4 border-b">Cena do Crime: O Escritório</h1>
                         <p class="mb-4">O corpo de Alistair está na poltrona. Não há sinais de luta, apenas uma pequena marca no pescoço. Passe o rato sobre a imagem para encontrar pistas.</p>
                         <div class="relative">
-                            <img src="${imagensCena.escritorio}" alt="Cena do crime" class="rounded-md w-full">
+                            <img src="${IMAGENS.escritorio}" alt="Cena do crime" class="rounded-md w-full">
                             ${pistasEscritorio}
                         </div>
                         <button onclick="carregarCena('salao')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">Ir para o Salão Principal</button>
                     `;
                 case 'salao':
-                    if (isMusicPlaying) changeMusic('festa');
+                    changeMusic('festa');
                     let salaoDesc = "Os suspeitos estão reunidos aqui, tensos.";
                     if (!gameState.escritorioTrancado) {
                         salaoDesc += " Consulte os dossiês no seu caderno para iniciar um interrogatório.";
@@ -473,15 +511,15 @@
                         <h1 class="text-4xl font-bold mb-4 text-center scene-title pb-4 border-b">Salão Principal</h1>
                         <p class="mb-4">${salaoDesc}</p>
                         <div class="relative">
-                            <img src="${imagensCena.salao}" alt="Salão da festa" class="rounded-md w-full" id="foto-festa">
+                            <img src="${IMAGENS.salao}" alt="Salão da festa" class="rounded-md w-full" id="foto-festa">
                             ${clickableKeyArea}
                         </div>
-                            <button onclick="analisarFotoFesta()" class="mt-4 w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded ${gameState.dia < 2 ? 'disabled' : ''}" ${gameState.dia < 2 ? 'disabled' : ''}>Analisar Foto da Festa</button>
-                            <button onclick="carregarCena('escritorio')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded ${gameState.escritorioTrancado ? 'disabled' : ''}" ${gameState.escritorioTrancado ? 'disabled' : ''}>Ir para o Escritório</button>
-                            <button onclick="carregarCena('biblioteca')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">Ir para a Biblioteca</button>
+                         <button onclick="analisarFotoFesta()" class="mt-4 w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded ${gameState.dia < 2 ? 'disabled' : ''}" ${gameState.dia < 2 ? 'disabled' : ''}>Analisar Foto da Festa</button>
+                         <button onclick="carregarCena('escritorio')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded ${gameState.escritorioTrancado ? 'disabled' : ''}" ${gameState.escritorioTrancado ? 'disabled' : ''}>Ir para o Escritório</button>
+                         <button onclick="carregarCena('biblioteca')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">Ir para a Biblioteca</button>
                     `;
                 case 'biblioteca':
-                    if (isMusicPlaying) changeMusic('suspense');
+                    changeMusic('suspense');
                     let pistasBiblioteca = '';
                     if (gameState.alfredoMencionouSophia) {
                         pistasBiblioteca += `<button onclick="investigar('Pena Exótica')" class="mt-4 w-full bg-yellow-600 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded">Investigar o xale de Sophia</button>`;
@@ -490,7 +528,7 @@
                         <h1 class="text-4xl font-bold mb-4 text-center scene-title pb-4 border-b">Biblioteca</h1>
                         <p class="mb-4">Uma sala silenciosa e cheia de livros antigos. Você nota uma coleção de jornais antigos numa mesa de canto, e o xale de Sophia esquecido numa poltrona.</p>
                         <div class="relative">
-                            <img src="${imagensCena.biblioteca}" alt="Biblioteca da mansão" class="rounded-md w-full">
+                            <img src="${IMAGENS.biblioteca}" alt="Biblioteca da mansão" class="rounded-md w-full">
                             <div onclick="investigar('Artigo de Jornal')" class="clickable-area" style="top: 85%; left: 70%;"></div>
                         </div>
                         ${pistasBiblioteca}
@@ -617,7 +655,7 @@
         }
 
         function renderInterrogatorioNoModal(suspeitoId) {
-            if (isMusicPlaying) changeMusic('tensao');
+            changeMusic('tensao');
             const suspeito = storyData.suspeitos[suspeitoId];
             let perguntasHTML = '';
             const dialogosDisponiveis = storyData.dialogos[suspeitoId] || [{ pergunta: "Qual o seu álibi?", resposta: `"${storyData.suspeitos[suspeitoId].alibi}"` }];
@@ -655,7 +693,7 @@
 
         function fecharModal() {
             modalContainer.style.display = 'none';
-            if (isMusicPlaying) changeMusic('festa');
+            changeMusic('festa');
         }
 
         function fazerPerguntaNoModal(suspeitoId, index) {
@@ -674,6 +712,7 @@
                 } else if (dialogo.revelaPista === "Veneno de Serpente") {
                     mostrarPista("Veneno de Serpente");
                     proximoObjetivo("Pergunte a Alfredo se ele viu algo perto do consultório.");
+                    // IMPORTANT: Return here to prevent re-rendering the interrogation over the clue
                     return;
                 } else if (dialogo.revelaPista === "Conexão da Pena") {
                     alert("Pista crucial encontrada! Celeste conectou a pena a Sophia.");
@@ -725,12 +764,9 @@
 
         function mostrarPista(nomePista) {
             const pista = storyData.pistas[nomePista];
-            if (!pista) {
-                console.error("Tentativa de mostrar pista inexistente:", nomePista);
-                return;
-            }
-            const isLogicPista = pista.descricao.includes("testemunhou") || pista.descricao.includes("alega");
+            if (!pista) return;
 
+            const isLogicPista = pista.descricao.includes("testemunhou") || pista.descricao.includes("alega");
             if (isLogicPista) return;
 
             modalBody.innerHTML = `
@@ -774,7 +810,14 @@
 
         let audioIniciado = false;
         async function iniciarAudio() {
-            if (audioIniciado || !isAudioContextStarted) return;
+            // Garante que o contexto esteja iniciado antes de tentar tocar
+            if (!isAudioContextStarted) {
+                try {
+                    await Tone.start();
+                    isAudioContextStarted = true;
+                } catch (e) { console.error(e); }
+            }
+            if (audioIniciado) return;
             try {
                 const audioPlayer = document.getElementById('audio-pista');
                 const synth = new Tone.Synth().toDestination();
@@ -784,7 +827,7 @@
                 synth.triggerAttackRelease("C6", "0.5");
                 setTimeout(async () => {
                     const recording = await recorder.stop();
-                    audioPlayer.src = URL.createObjectURL(recording);
+                    if (audioPlayer) audioPlayer.src = URL.createObjectURL(recording);
                     audioIniciado = true;
                 }, 1000);
             } catch (error) { console.error("Erro no áudio:", error); }
@@ -802,7 +845,7 @@
             }, 2500);
         }
 
-        initGame();
+        // Não chama initGame() diretamente, espera o clique no Overlay
     </script>
 </body>
 
