@@ -73,16 +73,20 @@
             cursor: pointer;
             transition: background-color 0.2s;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             transform: translate(-50%, -50%);
-            /* Deixe a linha abaixo como 0.0 para invisível ou 0.4 para testar onde estão as bolinhas */
-            background-color: rgba(255, 255, 224, 0.0);
+            /* Deixei levemente visível (amarelo transparente) para você testar. 
+               Depois mude o último número de 0.2 para 0.0 para ficar invisível */
+            background-color: rgba(255, 255, 0, 0.2);
+            border: 1px dashed rgba(255, 255, 0, 0.5);
+            /* Borda para ajudar a achar */
         }
 
         .clickable-area:hover {
-            background-color: rgba(255, 255, 224, 0.4);
+            background-color: rgba(255, 255, 224, 0.5);
             box-shadow: 0 0 15px #f6e05e;
+            border: 2px solid #f6e05e;
         }
 
         .modal {
@@ -257,13 +261,13 @@
         };
 
         // --- SISTEMA DE ÁUDIO ---
+        // Certifique-se que renomeou os arquivos tirando o .mp3 duplicado!
         const musicTracks = {
             suspense: new Audio('suspense.mp3'),
             festa: new Audio('festa.mp3'),
             tensao: new Audio('tensao.mp3')
         };
 
-        // Configurações iniciais dos arquivos de áudio
         Object.values(musicTracks).forEach(track => {
             track.loop = true;
             track.volume = 0.3;
@@ -411,9 +415,12 @@
                         <button onclick="carregarCena('salao')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">Ir para o Salão Principal e falar com os outros</button>
                     `;
                 case 'escritorio':
-                    let pistasEscritorio = `<div onclick="investigar('Gravador Digital')" class="clickable-area" style="top: 80%; left: 60%;"></div>`;
+                    // AJUSTE: Gravador na mesa da direita (aprox 75% left, 75% top)
+                    let pistasEscritorio = `<div onclick="investigar('Gravador Digital')" class="clickable-area" style="top: 75%; left: 75%;"></div>`;
+
+                    // AJUSTE: Carta perto do gravador na mesa (aprox 85% left, 85% top)
                     if (gameState.sophiaMencionouCarta && !gameState.pistas.has('Carta de Ameaça')) {
-                        pistasEscritorio += `<div onclick="investigar('Carta de Ameaça')" class="clickable-area" style="top: 90%; left: 25%;"></div>`;
+                        pistasEscritorio += `<div onclick="investigar('Carta de Ameaça')" class="clickable-area" style="top: 85%; left: 85%;"></div>`;
                     }
                     return `
                         <h1 class="text-4xl font-bold mb-4 text-center scene-title pb-4 border-b">Cena do Crime: O Escritório</h1>
@@ -432,7 +439,9 @@
 
                     let clickableKeyArea = '';
                     if (gameState.pistas.has('Artigo de Jornal') && gameState.escritorioTrancado) {
-                        clickableKeyArea = `<div onclick="encontrarChaveMestra()" class="clickable-area" style="top: 30%; left: 15%; width: 50px; height: 50px;"></div>`;
+                        // AJUSTE: Chave Mestra perto do retrato do homem (fundo, meio-esquerda)
+                        // Retrato: ~37% Left, ~28% Top
+                        clickableKeyArea = `<div onclick="encontrarChaveMestra()" class="clickable-area" style="top: 28%; left: 37%;"></div>`;
                     }
 
                     return `
@@ -456,7 +465,7 @@
                         <p class="mb-4">Uma sala silenciosa e cheia de livros antigos. Você nota uma coleção de jornais antigos numa mesa de canto, e o xale de Sophia esquecido numa poltrona.</p>
                         <div class="relative">
                             <img src="${imagensCena.biblioteca}" alt="Biblioteca da mansão" class="rounded-md w-full">
-                            <div onclick="investigar('Artigo de Jornal')" class="clickable-area" style="top: 58%; left: 62%;"></div>
+                            <div onclick="investigar('Artigo de Jornal')" class="clickable-area" style="top: 65%; left: 85%;"></div>
                         </div>
                         ${pistasBiblioteca}
                         <button onclick="carregarCena('salao')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">Voltar ao Salão</button>
