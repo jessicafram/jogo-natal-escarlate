@@ -14,10 +14,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
     <style>
         body {
-            /* Certifique-se de ter uma imagem chamada mansao.png ou o fundo ficará cinza */
             background-image: url('mansao.png');
             background-color: #1a202c;
-            /* Cor de fundo caso a imagem falhe */
             background-size: cover;
             background-position: center;
             background-attachment: fixed;
@@ -78,6 +76,7 @@
             width: 40px;
             height: 40px;
             transform: translate(-50%, -50%);
+            /* Deixe a linha abaixo como 0.0 para invisível ou 0.4 para testar onde estão as bolinhas */
             background-color: rgba(255, 255, 224, 0.0);
         }
 
@@ -242,23 +241,22 @@
             },
             pistas: {
                 "Gravador Digital": { imagem: "gravador_digital.png", descricao: "Um pequeno gravador de áudio. A sua única gravação é um som agudo e curto." },
-                "Carta de Ameaça": { imagem: "bilhete.png", descricao: "Uma carta de um agiota ameaçando Júnior se ele não pagar as suas dívidas de jogo." },
-                "Pena Exótica": { imagem: "pena_exotica.png", descricao: "Uma pena iridescente, azul e verde. Parece pertencer a uma ave muito rara. A pista crucial." },
+                "Carta de Ameaça": { imagem: "carta.png", descricao: "Uma carta de um agiota ameaçando Júnior se ele não pagar as suas dívidas de jogo." },
+                "Pena Exótica": { imagem: "pena.png", descricao: "Uma pena iridescente, azul e verde. Parece pertencer a uma ave muito rara. A pista crucial." },
                 "Veneno de Serpente": { imagem: "veneno.png", descricao: "Um frasco de veneno de serpente encontrado no consultório do Dr. Arnaldo. Uma pista falsa?" },
                 "Álibi de Alfredo quebrado": { imagem: "festa.png", descricao: "A foto da festa prova que Alfredo mentiu sobre a hora em que estava a polir a prata." },
-                "Álibi de Júnior quebrado": { imagem: "bilhete.png", descricao: "Júnior confessou que mentiu sobre o seu álibi. Ele não estava no salão de jogos, mas sim a encontrar-se com agiotas." },
+                "Álibi de Júnior quebrado": { imagem: "carta.png", descricao: "Júnior confessou que mentiu sobre o seu álibi. Ele não estava no salão de jogos, mas sim a encontrar-se com agiotas." },
                 "Nome 'Sophia'": { descricao: "A análise do áudio do gravador revelou uma mensagem ultrassónica. Decodificada, diz 'SOPHIA'." },
                 "Artigo de Jornal": { descricao: "Um antigo artigo de jornal detalha a ruína da família de Sophia causada por Alistair, mencionando a lenda do 'Fantasma do Natal'." },
                 "Chave Mestra": { imagem: "chave_mestra.png", descricao: "Uma antiga chave mestra ornamentada. Deve abrir qualquer porta na mansão." },
-                "Conexão da Pena": { imagem: "pena_exotica.png", descricao: "Celeste revelou que Sophia cria aves exóticas na sua fazenda, o que liga a Pena Exótica encontrada no escritório diretamente a ela." },
+                "Conexão da Pena": { imagem: "pena.png", descricao: "Celeste revelou que Sophia cria aves exóticas na sua fazenda, o que liga a Pena Exótica encontrada no escritório diretamente a ela." },
                 "Alfredo viu Sophia": { descricao: "Alfredo testemunhou ter visto Sophia a sair do consultório do Dr. Arnaldo na noite do crime." },
                 "Sophia mencionou Eleonora": { descricao: "Sophia alega que foi ao consultório do médico a pedido de Eleonora para buscar um analgésico." },
                 "Álibi de Sophia quebrado": { imagem: "eleonora.png", descricao: "Eleonora desmentiu a história de Sophia sobre o analgésico, provando que Sophia mentiu sobre estar no consultório do Dr. Arnaldo." }
             }
         };
 
-        // --- SISTEMA DE ÁUDIO NOVO (HTML5 Audio) ---
-        // Certifique-se que estes 3 arquivos estão na mesma pasta do .html
+        // --- SISTEMA DE ÁUDIO ---
         const musicTracks = {
             suspense: new Audio('suspense.mp3'),
             festa: new Audio('festa.mp3'),
@@ -268,7 +266,7 @@
         // Configurações iniciais dos arquivos de áudio
         Object.values(musicTracks).forEach(track => {
             track.loop = true;
-            track.volume = 0.3; // Volume 30%
+            track.volume = 0.3;
         });
 
         let gameState = {};
@@ -290,10 +288,8 @@
         }
 
         function changeMusic(mood) {
-            // Se já está a tocar a música certa, não faz nada
             if (currentTrackName === mood && !musicTracks[mood].paused) return;
 
-            // Pausa todas
             Object.values(musicTracks).forEach(track => {
                 track.pause();
                 track.currentTime = 0;
@@ -301,7 +297,6 @@
 
             currentTrackName = mood;
 
-            // Toca apenas se o botão estiver ligado
             if (isMusicPlaying) {
                 const newTrack = musicTracks[mood];
                 if (newTrack) {
@@ -313,7 +308,6 @@
         musicToggleButton.addEventListener('click', () => {
             isMusicPlaying = !isMusicPlaying;
 
-            // Troca ícones
             if (isMusicPlaying) {
                 musicOnIcon.classList.remove('hidden');
                 musicOffIcon.classList.add('hidden');
@@ -322,7 +316,6 @@
                 musicOffIcon.classList.remove('hidden');
             }
 
-            // Ação
             if (isMusicPlaying) {
                 const mood = getMoodForCurrentScene();
                 changeMusic(mood);
@@ -406,7 +399,6 @@
                 biblioteca: 'biblioteca.png'
             };
 
-            // Atualiza música com base na cena
             changeMusic(getMoodForCurrentScene());
 
             switch (gameState.cenaAtual) {
@@ -464,7 +456,7 @@
                         <p class="mb-4">Uma sala silenciosa e cheia de livros antigos. Você nota uma coleção de jornais antigos numa mesa de canto, e o xale de Sophia esquecido numa poltrona.</p>
                         <div class="relative">
                             <img src="${imagensCena.biblioteca}" alt="Biblioteca da mansão" class="rounded-md w-full">
-                            <div onclick="investigar('Artigo de Jornal')" class="clickable-area" style="top: 85%; left: 70%;"></div>
+                            <div onclick="investigar('Artigo de Jornal')" class="clickable-area" style="top: 58%; left: 62%;"></div>
                         </div>
                         ${pistasBiblioteca}
                         <button onclick="carregarCena('salao')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">Voltar ao Salão</button>
@@ -590,7 +582,7 @@
         }
 
         function renderInterrogatorioNoModal(suspeitoId) {
-            changeMusic('tensao'); // Toca música de tensão
+            changeMusic('tensao');
 
             const suspeito = storyData.suspeitos[suspeitoId];
             let perguntasHTML = '';
