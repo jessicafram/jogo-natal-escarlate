@@ -68,25 +68,22 @@
             font-weight: bold;
         }
 
-        /* --- CORREÇÃO FINAL: INVISIBILIDADE --- */
         .clickable-area {
             position: absolute;
             cursor: pointer;
-            transition: background-color 0.2s;
+            transition: all 0.3s;
             border-radius: 50%;
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             transform: translate(-50%, -50%);
-
-            /* AGORA ESTÁ INVISÍVEL (0.0) ATÉ O MOUSE PASSAR */
-            background-color: rgba(255, 255, 224, 0.0);
+            background-color: rgba(255, 255, 255, 0);
+            border: 0px solid transparent;
         }
 
         .clickable-area:hover {
-            /* Quando passa o mouse, fica meio transparente (0.4) e brilha */
-            background-color: rgba(255, 255, 224, 0.4);
-            box-shadow: 0 0 15px #f6e05e;
-            border: 1px solid #f6e05e;
+            background-color: rgba(255, 215, 0, 0.3);
+            box-shadow: 0 0 20px #f6e05e;
+            border: 2px solid #f6e05e;
         }
 
         .modal {
@@ -104,14 +101,19 @@
 
         .modal-content {
             background-color: #fdfaf3;
-            margin: 10% auto;
+            margin: 5% auto;
+            /* Reduzi a margem para caber melhor em telas pequenas */
             padding: 20px;
             border: 1px solid #c7bca1;
             width: 90%;
-            max-width: 500px;
+            max-width: 600px;
             color: #3a2d21;
             border-radius: 8px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            max-height: 90vh;
+            /* Evita que o modal fique maior que a tela */
+            overflow-y: auto;
+            /* Adiciona rolagem se necessário */
         }
 
         .character-card {
@@ -200,7 +202,7 @@
     </div>
 
     <script>
-        // --- BASE DE DADOS COMPLETA ---
+        // --- BASE DE DADOS ---
         const storyData = {
             assassino: "Sophia (A Sócia)",
             arma: "Agulha com Veneno",
@@ -283,19 +285,24 @@
         const musicOnIcon = document.getElementById('music-on-icon');
         const musicOffIcon = document.getElementById('music-off-icon');
 
+        // Função de música mais inteligente
         function getMoodForCurrentScene() {
+            // CORREÇÃO: Se o modal estiver aberto, FORÇA a música de tensão e não muda
+            if (gameState.modalAberto) return 'tensao';
+
             if (!gameState.cenaAtual) return 'suspense';
-            if (gameState.cenaAtual.includes('interrogatorio')) return 'tensao';
             if (gameState.cenaAtual === 'salao') return 'festa';
             return 'suspense';
         }
 
         function changeMusic(mood) {
+            // Se já está a tocar a música certa e não está pausada, NÃO reinicia
             if (currentTrackName === mood && !musicTracks[mood].paused) return;
 
+            // Pausa todas
             Object.values(musicTracks).forEach(track => {
                 track.pause();
-                track.currentTime = 0;
+                // Opcional: track.currentTime = 0; se quiser reiniciar sempre que mudar de música
             });
 
             currentTrackName = mood;
@@ -338,7 +345,8 @@
                 escritorioTrancado: true,
                 sophiaMencionouCarta: false,
                 alfredoMencionouSophia: false,
-                sophiaMencionouEleonora: false
+                sophiaMencionouEleonora: false,
+                modalAberto: false // Novo estado para controlar a música
             };
             Object.keys(storyData.suspeitos).forEach(id => {
                 gameState.interrogatorios[id] = {
@@ -385,10 +393,13 @@
 
         function renderTelaFinal() {
             const vitoria = gameState.vitoria;
+            // CORREÇÃO: Seleciona a imagem certa baseada no personagem escolhido (arthur ou jane)
+            const imagemFinal = vitoria ? `vitoria_${gameState.protagonista}.png` : `derrota_${gameState.protagonista}.png`;
+
             return `
                 <div class="text-center">
                     <h2 class="text-5xl font-bold game-title pb-4">${vitoria ? "Caso Encerrado!" : "Fim de Jogo"}</h2>
-                    <img src="${vitoria ? 'vitoria' : 'derrota'}.png" class="w-full md:w-1/2 mx-auto my-6 rounded-lg shadow-lg">
+                    <img src="${imagemFinal}" class="w-full md:w-1/2 mx-auto my-6 rounded-lg shadow-lg">
                     <p class="text-xl">${vitoria ? "Brilhante! Você juntou as pistas certas. Sophia foi desmascarada." : `Enquanto você acusava a pessoa errada, o verdadeiro assassino preparava a sua armadilha final. Você é a última vítima.`}</p>
                     <button onclick="initGame()" class="mt-6 btn-principal text-white font-bold py-3 px-6 rounded text-lg">Jogar Novamente</button>
                 </div>`;
@@ -402,6 +413,7 @@
                 biblioteca: 'biblioteca.png'
             };
 
+            // Atualiza a música apenas se necessário (não reinicia se já estiver tocando a certa)
             changeMusic(getMoodForCurrentScene());
 
             switch (gameState.cenaAtual) {
@@ -414,12 +426,10 @@
                         <button onclick="carregarCena('salao')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">Ir para o Salão Principal e falar com os outros</button>
                     `;
                 case 'escritorio':
-                    // Gravador na mesa da direita (aprox 75% left, 75% top)
-                    let pistasEscritorio = `<div onclick="investigar('Gravador Digital')" class="clickable-area" style="top: 75%; left: 75%;"></div>`;
+                    let pistasEscritorio = `<div onclick="investigar('Gravador Digital')" class="clickable-area" style="top: 80%; left: 80%;"></div>`;
 
-                    // Carta perto do gravador na mesa (aprox 85% left, 85% top)
                     if (gameState.sophiaMencionouCarta && !gameState.pistas.has('Carta de Ameaça')) {
-                        pistasEscritorio += `<div onclick="investigar('Carta de Ameaça')" class="clickable-area" style="top: 85%; left: 85%;"></div>`;
+                        pistasEscritorio += `<div onclick="investigar('Carta de Ameaça')" class="clickable-area" style="top: 85%; left: 90%;"></div>`;
                     }
                     return `
                         <h1 class="text-4xl font-bold mb-4 text-center scene-title pb-4 border-b">Cena do Crime: O Escritório</h1>
@@ -438,8 +448,7 @@
 
                     let clickableKeyArea = '';
                     if (gameState.pistas.has('Artigo de Jornal') && gameState.escritorioTrancado) {
-                        // Chave Mestra perto do retrato do homem
-                        clickableKeyArea = `<div onclick="encontrarChaveMestra()" class="clickable-area" style="top: 28%; left: 37%;"></div>`;
+                        clickableKeyArea = `<div onclick="encontrarChaveMestra()" class="clickable-area" style="top: 30%; left: 35%;"></div>`;
                     }
 
                     return `
@@ -463,7 +472,7 @@
                         <p class="mb-4">Uma sala silenciosa e cheia de livros antigos. Você nota uma coleção de jornais antigos numa mesa de canto, e o xale de Sophia esquecido numa poltrona.</p>
                         <div class="relative">
                             <img src="${imagensCena.biblioteca}" alt="Biblioteca da mansão" class="rounded-md w-full">
-                            <div onclick="investigar('Artigo de Jornal')" class="clickable-area" style="top: 65%; left: 85%;"></div>
+                            <div onclick="investigar('Artigo de Jornal')" class="clickable-area" style="top: 60%; left: 85%;"></div>
                         </div>
                         ${pistasBiblioteca}
                         <button onclick="carregarCena('salao')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">Voltar ao Salão</button>
@@ -574,6 +583,10 @@
         }
 
         function abrirDossie(suspeitoId) {
+            // CORREÇÃO: Marca que o modal abriu para controlar a música
+            gameState.modalAberto = true;
+            changeMusic('tensao');
+
             gameState.interrogatorios[suspeitoId].ultimaResposta = null;
             const suspeito = storyData.suspeitos[suspeitoId];
             let content = `
@@ -589,7 +602,8 @@
         }
 
         function renderInterrogatorioNoModal(suspeitoId) {
-            changeMusic('tensao');
+            // A música de tensão já foi ativada ao abrir o modal, não precisamos chamar aqui de novo
+            // para evitar reiniciar o áudio.
 
             const suspeito = storyData.suspeitos[suspeitoId];
             let perguntasHTML = '';
@@ -627,6 +641,8 @@
         }
 
         function fecharModal() {
+            // CORREÇÃO: Marca que o modal fechou
+            gameState.modalAberto = false;
             modalContainer.style.display = 'none';
             changeMusic('festa');
         }
@@ -705,6 +721,10 @@
             const isLogicPista = pista.descricao.includes("testemunhou") || pista.descricao.includes("alega");
 
             if (isLogicPista) return;
+
+            // CORREÇÃO: Abre o modal e marca o estado para a música não mudar
+            gameState.modalAberto = true;
+            changeMusic('tensao'); // Opcional: Tocar música de tensão ao ver pistas
 
             modalBody.innerHTML = `
                 <h2 class="text-3xl text-center caderno-titulo pb-2">${nomePista}</h2>
