@@ -68,6 +68,7 @@
             font-weight: bold;
         }
 
+        /* --- CORREÇÃO FINAL: INVISIBILIDADE --- */
         .clickable-area {
             position: absolute;
             cursor: pointer;
@@ -76,17 +77,16 @@
             width: 50px;
             height: 50px;
             transform: translate(-50%, -50%);
-            /* Deixei levemente visível (amarelo transparente) para você testar. 
-               Depois mude o último número de 0.2 para 0.0 para ficar invisível */
-            background-color: rgba(255, 255, 0, 0.2);
-            border: 1px dashed rgba(255, 255, 0, 0.5);
-            /* Borda para ajudar a achar */
+
+            /* AGORA ESTÁ INVISÍVEL (0.0) ATÉ O MOUSE PASSAR */
+            background-color: rgba(255, 255, 224, 0.0);
         }
 
         .clickable-area:hover {
-            background-color: rgba(255, 255, 224, 0.5);
+            /* Quando passa o mouse, fica meio transparente (0.4) e brilha */
+            background-color: rgba(255, 255, 224, 0.4);
             box-shadow: 0 0 15px #f6e05e;
-            border: 2px solid #f6e05e;
+            border: 1px solid #f6e05e;
         }
 
         .modal {
@@ -261,7 +261,6 @@
         };
 
         // --- SISTEMA DE ÁUDIO ---
-        // Certifique-se que renomeou os arquivos tirando o .mp3 duplicado!
         const musicTracks = {
             suspense: new Audio('suspense.mp3'),
             festa: new Audio('festa.mp3'),
@@ -415,10 +414,10 @@
                         <button onclick="carregarCena('salao')" class="mt-4 w-full bg-blue-700 hover:bg-blue-800 text-white font-bold py-2 px-4 rounded">Ir para o Salão Principal e falar com os outros</button>
                     `;
                 case 'escritorio':
-                    // AJUSTE: Gravador na mesa da direita (aprox 75% left, 75% top)
+                    // Gravador na mesa da direita (aprox 75% left, 75% top)
                     let pistasEscritorio = `<div onclick="investigar('Gravador Digital')" class="clickable-area" style="top: 75%; left: 75%;"></div>`;
 
-                    // AJUSTE: Carta perto do gravador na mesa (aprox 85% left, 85% top)
+                    // Carta perto do gravador na mesa (aprox 85% left, 85% top)
                     if (gameState.sophiaMencionouCarta && !gameState.pistas.has('Carta de Ameaça')) {
                         pistasEscritorio += `<div onclick="investigar('Carta de Ameaça')" class="clickable-area" style="top: 85%; left: 85%;"></div>`;
                     }
@@ -439,8 +438,7 @@
 
                     let clickableKeyArea = '';
                     if (gameState.pistas.has('Artigo de Jornal') && gameState.escritorioTrancado) {
-                        // AJUSTE: Chave Mestra perto do retrato do homem (fundo, meio-esquerda)
-                        // Retrato: ~37% Left, ~28% Top
+                        // Chave Mestra perto do retrato do homem
                         clickableKeyArea = `<div onclick="encontrarChaveMestra()" class="clickable-area" style="top: 28%; left: 37%;"></div>`;
                     }
 
