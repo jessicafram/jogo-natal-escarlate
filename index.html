@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
-        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;700&family=UnifrakturMaguntia&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;700&family=UnifrakturMaguntia&family=Allura&display=swap"
         rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.7.77/Tone.js"></script>
     <style>
@@ -35,6 +35,19 @@
             border-bottom: 1px solid #718096;
             font-family: 'UnifrakturMaguntia', cursive;
             text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        /* --- CLASSE PARA A SUA ASSINATURA --- */
+        .assinatura-autora {
+            font-family: 'Allura', cursive;
+            /* Fonte estilo assinatura */
+            font-size: 2.5rem;
+            /* Tamanho grande e elegante */
+            color: #ecc94b;
+            /* Tom dourado */
+            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.8);
+            margin-top: 2rem;
+            opacity: 0.9;
         }
 
         .scene-title {
@@ -102,7 +115,6 @@
         .modal-content {
             background-color: #fdfaf3;
             margin: 5% auto;
-            /* Reduzi a margem para caber melhor em telas pequenas */
             padding: 20px;
             border: 1px solid #c7bca1;
             width: 90%;
@@ -111,9 +123,7 @@
             border-radius: 8px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
             max-height: 90vh;
-            /* Evita que o modal fique maior que a tela */
             overflow-y: auto;
-            /* Adiciona rolagem se necessário */
         }
 
         .character-card {
@@ -262,20 +272,20 @@
             }
         };
 
-        // --- SISTEMA DE ÁUDIO ---
+        // --- SISTEMA DE ÁUDIO COM FADING ---
         const musicTracks = {
-            suspense: new Audio('suspense.mp3'),
-            festa: new Audio('festa.mp3'),
-            tensao: new Audio('tensao.mp3')
+            suspense: { audio: new Audio('suspense.mp3'), volumeAlvo: 0.3, fadeInterval: null },
+            festa: { audio: new Audio('festa.mp3'), volumeAlvo: 0.5, fadeInterval: null },
+            tensao: { audio: new Audio('tensao.mp3'), volumeAlvo: 0.15, fadeInterval: null }
         };
 
         Object.values(musicTracks).forEach(track => {
-            track.loop = true;
-            track.volume = 0.3;
+            track.audio.loop = true;
+            track.audio.volume = 0;
         });
 
         let gameState = {};
-        let currentTrackName = null;
+        let currentTrackKey = null;
         let isMusicPlaying = false;
 
         const gameWindow = document.getElementById('game-window');
@@ -285,33 +295,58 @@
         const musicOnIcon = document.getElementById('music-on-icon');
         const musicOffIcon = document.getElementById('music-off-icon');
 
-        // Função de música mais inteligente
-        function getMoodForCurrentScene() {
-            // CORREÇÃO: Se o modal estiver aberto, FORÇA a música de tensão e não muda
-            if (gameState.modalAberto) return 'tensao';
+        function fadeIn(trackKey) {
+            const track = musicTracks[trackKey];
+            if (!track) return;
 
+            clearInterval(track.fadeInterval);
+            track.audio.play().catch(e => console.log("Aguardando play..."));
+
+            track.fadeInterval = setInterval(() => {
+                if (track.audio.volume < track.volumeAlvo) {
+                    track.audio.volume = Math.min(track.audio.volume + 0.05, track.volumeAlvo);
+                } else {
+                    clearInterval(track.fadeInterval);
+                }
+            }, 200);
+        }
+
+        function fadeOut(trackKey) {
+            const track = musicTracks[trackKey];
+            if (!track) return;
+
+            clearInterval(track.fadeInterval);
+
+            track.fadeInterval = setInterval(() => {
+                if (track.audio.volume > 0.05) {
+                    track.audio.volume = Math.max(0, track.audio.volume - 0.05);
+                } else {
+                    track.audio.volume = 0;
+                    track.audio.pause();
+                    track.audio.currentTime = 0;
+                    clearInterval(track.fadeInterval);
+                }
+            }, 200);
+        }
+
+        function getMoodForCurrentScene() {
+            if (gameState.modalAberto) return 'tensao';
             if (!gameState.cenaAtual) return 'suspense';
             if (gameState.cenaAtual === 'salao') return 'festa';
             return 'suspense';
         }
 
         function changeMusic(mood) {
-            // Se já está a tocar a música certa e não está pausada, NÃO reinicia
-            if (currentTrackName === mood && !musicTracks[mood].paused) return;
+            if (currentTrackKey === mood && !musicTracks[mood].audio.paused) return;
 
-            // Pausa todas
-            Object.values(musicTracks).forEach(track => {
-                track.pause();
-                // Opcional: track.currentTime = 0; se quiser reiniciar sempre que mudar de música
-            });
+            if (currentTrackKey && currentTrackKey !== mood) {
+                fadeOut(currentTrackKey);
+            }
 
-            currentTrackName = mood;
+            currentTrackKey = mood;
 
             if (isMusicPlaying) {
-                const newTrack = musicTracks[mood];
-                if (newTrack) {
-                    newTrack.play().catch(e => console.log("Aguardando interação do usuário para tocar som."));
-                }
+                fadeIn(mood);
             }
         }
 
@@ -330,7 +365,7 @@
                 const mood = getMoodForCurrentScene();
                 changeMusic(mood);
             } else {
-                Object.values(musicTracks).forEach(track => track.pause());
+                Object.keys(musicTracks).forEach(key => fadeOut(key));
             }
         });
 
@@ -346,7 +381,7 @@
                 sophiaMencionouCarta: false,
                 alfredoMencionouSophia: false,
                 sophiaMencionouEleonora: false,
-                modalAberto: false // Novo estado para controlar a música
+                modalAberto: false
             };
             Object.keys(storyData.suspeitos).forEach(id => {
                 gameState.interrogatorios[id] = {
@@ -381,6 +416,7 @@
                             <div onclick="selecionarPersonagem('jane')" class="character-card text-center p-4 rounded-lg"><img src="jane.png" alt="A Detetive Jane Marple" class="w-48 h-48 mx-auto rounded-full object-cover border-4 border-gray-600"><h3 class="mt-4 text-2xl font-bold">Jane Marple</h3></div>
                         </div>
                     </div>
+                    <div class="assinatura-autora">Criado e Desenvolvido por Jessica França</div>
                 </div>`;
         }
 
@@ -393,8 +429,13 @@
 
         function renderTelaFinal() {
             const vitoria = gameState.vitoria;
-            // CORREÇÃO: Seleciona a imagem certa baseada no personagem escolhido (arthur ou jane)
             const imagemFinal = vitoria ? `vitoria_${gameState.protagonista}.png` : `derrota_${gameState.protagonista}.png`;
+
+            if (vitoria) {
+                changeMusic('festa');
+            } else {
+                changeMusic('tensao');
+            }
 
             return `
                 <div class="text-center">
@@ -413,7 +454,6 @@
                 biblioteca: 'biblioteca.png'
             };
 
-            // Atualiza a música apenas se necessário (não reinicia se já estiver tocando a certa)
             changeMusic(getMoodForCurrentScene());
 
             switch (gameState.cenaAtual) {
@@ -583,7 +623,6 @@
         }
 
         function abrirDossie(suspeitoId) {
-            // CORREÇÃO: Marca que o modal abriu para controlar a música
             gameState.modalAberto = true;
             changeMusic('tensao');
 
@@ -602,9 +641,7 @@
         }
 
         function renderInterrogatorioNoModal(suspeitoId) {
-            // A música de tensão já foi ativada ao abrir o modal, não precisamos chamar aqui de novo
-            // para evitar reiniciar o áudio.
-
+            // A música não muda aqui porque modalAberto = true protege
             const suspeito = storyData.suspeitos[suspeitoId];
             let perguntasHTML = '';
             const dialogosDisponiveis = storyData.dialogos[suspeitoId] || [{ pergunta: "Qual o seu álibi?", resposta: `"${storyData.suspeitos[suspeitoId].alibi}"` }];
@@ -641,7 +678,6 @@
         }
 
         function fecharModal() {
-            // CORREÇÃO: Marca que o modal fechou
             gameState.modalAberto = false;
             modalContainer.style.display = 'none';
             changeMusic('festa');
@@ -722,9 +758,8 @@
 
             if (isLogicPista) return;
 
-            // CORREÇÃO: Abre o modal e marca o estado para a música não mudar
             gameState.modalAberto = true;
-            changeMusic('tensao'); // Opcional: Tocar música de tensão ao ver pistas
+            changeMusic('tensao');
 
             modalBody.innerHTML = `
                 <h2 class="text-3xl text-center caderno-titulo pb-2">${nomePista}</h2>
